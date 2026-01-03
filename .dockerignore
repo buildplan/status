@@ -24,3 +24,9 @@ README.md
 data
 caddy_*
 Caddyfile
+node_modules
+npm-debug.log
+README.md
+data/*
+!data/.keep
+screenshots/
