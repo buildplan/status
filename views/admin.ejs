@@ -51,18 +51,21 @@
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Target URL</label>
                             <input type="url" name="url" required placeholder="https://api.example.com/health" 
                                 class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                            <p class="text-[10px] text-slate-600 mt-1">Must return a 200-299 HTTP status code.</p>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Notification Webhook (Optional)</label>
                             <input type="url" name="notification_url" placeholder="https://ntfy.sh/..." 
                                 class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                            <p class="text-[10px] text-slate-600 mt-1">Supports Discord, Ntfy, Gotify.</p>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Auth Token (Optional)</label>
                             <input type="password" name="notification_token" placeholder="tk_..." 
                                 class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                            <p class="text-[10px] text-slate-600 mt-1">Bearer token for private Ntfy topics.</p>
                         </div>
 
                         <div>
@@ -86,6 +89,9 @@
 
                 <% if (monitors.length === 0) { %>
                     <div class="glass rounded-xl p-12 text-center border-dashed border-2 border-slate-800">
+                        <div class="inline-flex p-4 rounded-full bg-slate-800/50 mb-4 text-slate-600">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
                         <h3 class="text-white font-medium">No monitors yet</h3>
                         <p class="text-slate-500 text-sm mt-1">Use the form on the left to add your first service.</p>
                     </div>
@@ -95,7 +101,13 @@
                             <div class="glass rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-slate-800/30 transition-colors">
                                 <div class="flex items-center gap-4">
                                     <div class="w-10 h-10 rounded-lg bg-[#0f172a] border border-slate-700 flex items-center justify-center shrink-0">
-                                        <div class="w-2.5 h-2.5 rounded-full <%= m.status === 'up' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : (m.status === 'down' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 'bg-yellow-500 animate-pulse') %>"></div>
+                                        <% if (m.status === 'up') { %>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+                                        <% } else if (m.status === 'down') { %>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"></div>
+                                        <% } else { %>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
+                                        <% } %>
                                     </div>
                                     <div>
                                         <h3 class="font-semibold text-white"><%= m.name %></h3>
@@ -108,6 +120,7 @@
                                 </div>
 
                                 <div class="flex items-center gap-2 sm:justify-end border-t sm:border-0 border-slate-800 pt-3 sm:pt-0">
+                                    
                                     <button onclick="openEditModal(<%= JSON.stringify(m) %>)" class="p-2 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all" title="Edit Monitor">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
