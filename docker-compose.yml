@@ -2,7 +2,7 @@ services:
   status:
     build: .
     container_name: status-service
-    restart: unless
+    restart: unless-stopped
     user: "1001:1001" # required to set correct permissions
     ports:
       - "3909:3000"           # public - expose status page
