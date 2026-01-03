@@ -45,12 +45,38 @@ app.use(async (req, res, next) => {
 // Public Status Page
 app.get('/', (req, res) => {
     const monitors = db.prepare('SELECT * FROM monitors').all();
-    const enriched = monitors.map(m => {
-        const history = db.prepare('SELECT status, latency, timestamp FROM heartbeats WHERE monitor_id = ? ORDER BY id DESC LIMIT 50').all(m.id).reverse();
-        return { ...m, history };
-    });
+    let globalStatus = 'operational';
+    let totalLatency = 0;
+    let onlineCount = 0;
 
-    res.render('index', { monitors: enriched });
+    const enriched = monitors.map(m => {
+        // Get last 50 checks
+        const history = db.prepare('SELECT status, latency, timestamp FROM heartbeats WHERE monitor_id = ? ORDER BY id DESC LIMIT 50').all(m.id).reverse();
+
+        // Calculate Uptime (based on fetched history)
+        const upCount = history.filter(h => h.status === 'up').length;
+        const totalCount = history.length || 1;
+        const uptime = Math.round((upCount / totalCount) * 100);
+
+        // Global Stats calculations
+        if (m.status === 'up') onlineCount++;
+        if (m.status === 'down') globalStatus = 'degraded';
+        totalLatency += m.response_time || 0;
+        return { ...m, history, uptime };
+    });
+    const avgLatency = monitors.length > 0 ? Math.round(totalLatency / monitors.length) : 0;
+
+    // If less than 80% services are up, mark as outage
+    if ((onlineCount / monitors.length) < 0.8 && monitors.length > 0) globalStatus = 'outage';
+    res.render('index', {
+        monitors: enriched,
+        stats: {
+            active: monitors.length,
+            online: onlineCount,
+            avgLatency,
+            status: globalStatus
+        }
+    });
 });
 
 // Admin Dashboard

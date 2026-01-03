@@ -5,80 +5,209 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Status</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .bar { transition: height 0.3s; }
-        .bar:hover { opacity: 0.8; transform: scaleY(1.2); }
+        body { font-family: 'Inter', sans-serif; background-color: #0b1120; }
+        .glass { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .glass-card { background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.6) 100%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2); }
+        
+        /* Status Glows */
+        .glow-green { box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.4); }
+        .glow-red { box-shadow: 0 0 15px -3px rgba(239, 68, 68, 0.4); }
+        .glow-yellow { box-shadow: 0 0 15px -3px rgba(234, 179, 8, 0.4); }
+
+        /* Smooth text transitions */
+        .stat-transition { transition: all 0.15s ease-out; }
     </style>
 </head>
-<body class="bg-[#0b1120] text-slate-300 min-h-screen font-sans">
-    
-    <div class="max-w-4xl mx-auto px-6 py-12">
-        <header class="flex justify-between items-end mb-10">
-            <div>
-                <h1 class="text-3xl font-bold text-white tracking-tight">System Status</h1>
-                <p class="text-slate-500 mt-1">Live service health & uptime monitoring</p>
-            </div>
-            <div class="flex gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    Systems Operational
-                </span>
-            </div>
-        </header>
+<body class="text-slate-300 min-h-screen flex flex-col">
 
-        <div class="space-y-4">
-            <% monitors.forEach(m => { %>
-                <div class="glass rounded-xl p-5 hover:bg-slate-800/50 transition-colors">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 rounded-lg <%= m.status === 'up' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400' %>">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <% if (m.status === 'up') { %>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    <% } else { %>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                    <% } %>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-white font-semibold text-lg"><%= m.name %></h3>
-                                <a href="<%= m.url %>" target="_blank" class="text-xs text-slate-500 hover:text-blue-400 transition-colors"><%= m.url %></a>
-                            </div>
+    <div class="relative bg-gradient-to-b from-[#111827] to-[#0b1120] border-b border-white/5 pt-12 pb-16 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">System Status</h1>
+                    <p class="text-slate-400">Live performance monitoring & health check.</p>
+                </div>
+                
+                <div class="flex items-center gap-3 px-5 py-3 rounded-full glass border border-white/10 shadow-xl">
+                    <% if (stats.status === 'operational') { %>
+                        <span class="relative flex h-4 w-4">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 glow-green"></span>
+                        </span>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-white leading-none">All Systems Operational</span>
+                            <span class="text-[10px] text-emerald-400 font-mono mt-1">100% UPTIME TODAY</span>
                         </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-mono font-bold <%= m.status === 'up' ? 'text-emerald-400' : 'text-red-400' %>">
-                                <%= m.status.toUpperCase() %>
-                            </div>
-                            <div class="text-xs text-slate-500 font-mono mt-1"><%= m.response_time %>ms</div>
+                    <% } else if (stats.status === 'degraded') { %>
+                        <span class="relative inline-flex rounded-full h-4 w-4 bg-yellow-500 glow-yellow animate-pulse"></span>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-white leading-none">Partial Degradation</span>
+                            <span class="text-[10px] text-yellow-400 font-mono mt-1">SOME SERVICES DOWN</span>
+                        </div>
+                    <% } else { %>
+                        <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 glow-red animate-pulse"></span>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-white leading-none">Major Outage</span>
+                            <span class="text-[10px] text-red-400 font-mono mt-1">CRITICAL FAILURES</span>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+                <div class="glass rounded-xl p-4 flex flex-col">
+                    <span class="text-xs font-bold uppercase text-slate-500 tracking-wider">Monitors</span>
+                    <span class="text-2xl font-bold text-white mt-1"><%= stats.active %></span>
+                </div>
+                <div class="glass rounded-xl p-4 flex flex-col">
+                    <span class="text-xs font-bold uppercase text-slate-500 tracking-wider">Services Up</span>
+                    <span class="text-2xl font-bold text-emerald-400 mt-1"><%= stats.online %></span>
+                </div>
+                <div class="glass rounded-xl p-4 flex flex-col">
+                    <span class="text-xs font-bold uppercase text-slate-500 tracking-wider">Avg Latency</span>
+                    <span class="text-2xl font-bold text-blue-400 mt-1"><%= stats.avgLatency %> <span class="text-sm text-slate-500">ms</span></span>
+                </div>
+                <div class="glass rounded-xl p-4 flex flex-col">
+                    <span class="text-xs font-bold uppercase text-slate-500 tracking-wider">Next Update</span>
+                    <span class="text-2xl font-bold text-slate-300 mt-1" id="timer">60s</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-5xl mx-auto px-6 -mt-8 space-y-4 w-full z-10">
+        
+        <% monitors.forEach(m => { %>
+            <div class="glass-card rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-slate-600/50 group relative overflow-hidden" id="card-<%= m.id %>">
+                
+                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br <%= m.status === 'up' ? 'from-emerald-500/5' : 'from-red-500/5' %> to-transparent rounded-bl-full pointer-events-none"></div>
+
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
+                    <div class="flex items-center gap-4 z-10">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 <%= m.status === 'up' ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-red-500/10 border border-red-500/20' %>">
+                            <% if (m.status === 'up') { %>
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <% } else { %>
+                                <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <% } %>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <%= m.name %>
+                                <% if (m.uptime === 100) { %>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">100%</span>
+                                <% } else { %>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-yellow-500 border border-slate-700"><%= m.uptime %>%</span>
+                                <% } %>
+                            </h3>
+                            <a href="<%= m.url %>" target="_blank" class="text-sm text-slate-500 hover:text-blue-400 transition-colors font-mono"><%= m.url %></a>
                         </div>
                     </div>
 
-                    <div class="flex items-end gap-[2px] h-8 mt-2 opacity-80">
+                    <div class="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end z-10">
+                        <div class="hidden sm:block w-32 h-10 opacity-50">
+                            <% 
+                                const h = m.history;
+                                const maxLat = Math.max(...h.map(x => x.latency), 100); 
+                                let points = "";
+                                h.forEach((pt, i) => {
+                                    const x = (i / (h.length - 1 || 1)) * 128; 
+                                    const y = 40 - ((pt.latency / maxLat) * 40);
+                                    points += `${x},${y} `;
+                                });
+                            %>
+                            <svg width="100%" height="100%" viewBox="0 0 128 40" preserveAspectRatio="none" class="overflow-visible">
+                                <path d="M0,40 <%= points %> 128,40 Z" fill="url(#grad<%= m.id %>)" />
+                                <polyline points="<%= points %>" fill="none" stroke="<%= m.status === 'up' ? '#10b981' : '#ef4444' %>" stroke-width="2" stroke-linejoin="round" />
+                                <defs>
+                                    <linearGradient id="grad<%= m.id %>" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="<%= m.status === 'up' ? '#10b981' : '#ef4444' %>" stop-opacity="0.3"/>
+                                        <stop offset="100%" stop-color="<%= m.status === 'up' ? '#10b981' : '#ef4444' %>" stop-opacity="0"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        
+                        <div class="text-right min-w-[100px]">
+                            <div class="text-2xl font-bold font-mono text-white tracking-tighter stat-transition" id="latency-val-<%= m.id %>">
+                                <%= m.response_time %>ms
+                            </div>
+                            <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider stat-transition" id="latency-label-<%= m.id %>">
+                                Current Latency
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative" onmouseleave="resetStats(<%= m.id %>, '<%= m.response_time %>')">
+                    <div class="flex items-end gap-[3px] h-10 w-full">
                         <% m.history.forEach(h => { %>
-                            <div title="<%= new Date(h.timestamp).toLocaleTimeString() %> - <%= h.latency %>ms" 
-                                 class="flex-1 rounded-sm <%= h.status === 'up' ? 'bg-emerald-500' : 'bg-red-500' %>"
-                                 style="height: <%= Math.min(100, Math.max(20, (h.latency / 2))) %>%;">
+                            <div class="flex-1 min-w-[4px] rounded-sm transition-all hover:opacity-100 hover:scale-y-110 hover:bg-white origin-bottom cursor-crosshair
+                                <%= h.status === 'up' ? (h.latency > 500 ? 'bg-yellow-500 opacity-60' : 'bg-emerald-500 opacity-40') : 'bg-red-500 opacity-80' %>"
+                                style="height: <%= h.status === 'down' ? '100%' : Math.max(20, Math.min(100, (h.latency / 2))) + '%' %>;"
+                                onmouseenter="updateStats(<%= m.id %>, '<%= h.latency %>', '<%= new Date(h.timestamp).toLocaleTimeString() %>', '<%= h.status %>')">
                             </div>
                         <% }) %>
+                        
                         <% for(let i=0; i < (50 - m.history.length); i++) { %>
-                            <div class="flex-1 h-1 bg-slate-700/30 rounded-sm"></div>
+                            <div class="flex-1 h-1 bg-slate-800 rounded-sm"></div>
                         <% } %>
                     </div>
                 </div>
-            <% }) %>
-        </div>
+            </div>
+        <% }) %>
 
-        <footer class="mt-12 text-center text-xs text-slate-600 border-t border-slate-800/50 pt-8">
-            <p>&copy; 2026 WiredAlter Status. <a href="/login" class="hover:text-slate-400">Admin</a></p>
-        </footer>
-    </div>
+    </main>
+
+    <footer class="max-w-5xl mx-auto px-6 mt-16 mb-8 w-full">
+        <div class="border-t border-slate-800/50 pt-8 flex flex-col items-center">
+            <p class="text-xs text-slate-600 font-medium">
+                &copy; <span id="year"></span> WiredAlter Status. All Systems Operational.
+            </p>
+        </div>
+    </footer>
+
     <script>
-        // Auto refresh every 60s
-        setTimeout(() => window.location.reload(), 60000);
+        document.getElementById("year").innerText = new Date().getFullYear();
+
+        // 1. UPDATE STATS ON HOVER
+        function updateStats(id, latency, time, status) {
+            const valEl = document.getElementById(`latency-val-${id}`);
+            const labelEl = document.getElementById(`latency-label-${id}`);
+            
+            // Visual feedback
+            valEl.innerText = latency + 'ms';
+            valEl.style.color = status === 'up' ? '#fff' : '#ef4444'; 
+            
+            labelEl.innerText = time;
+            labelEl.style.color = '#3b82f6';
+        }
+
+        // 2. RESET STATS ON LEAVE
+        function resetStats(id, currentLatency) {
+            const valEl = document.getElementById(`latency-val-${id}`);
+            const labelEl = document.getElementById(`latency-label-${id}`);
+            
+            valEl.innerText = currentLatency + 'ms';
+            valEl.style.color = ''; 
+            
+            labelEl.innerText = 'CURRENT LATENCY';
+            labelEl.style.color = ''; 
+        }
+
+        // 3. COUNTDOWN TIMER
+        let timeLeft = 60;
+        const timerEl = document.getElementById('timer');
+        setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                timeLeft = 0;
+                window.location.reload();
+            }
+            timerEl.innerText = timeLeft + 's';
+        }, 1000);
     </script>
 </body>
 </html>
