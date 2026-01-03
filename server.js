@@ -27,42 +27,29 @@ publicApp.set('view engine', 'ejs');
 publicApp.set('views', path.join(__dirname, 'views'));
 publicApp.use(express.static('public')); // Serve CSS/Assets
 
-// Public Route: Status Page
+// Public Status Page
 publicApp.get('/', (req, res) => {
     const monitors = db.prepare('SELECT * FROM monitors').all();
+    const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get(); // Fetch Settings
     let globalStatus = 'operational';
     let totalLatency = 0;
     let onlineCount = 0;
-
     const enriched = monitors.map(m => {
-        // Get last 50 checks
         const history = db.prepare('SELECT status, latency, timestamp FROM heartbeats WHERE monitor_id = ? ORDER BY id DESC LIMIT 50').all(m.id).reverse();
-
-        // Calculate Uptime
         const upCount = history.filter(h => h.status === 'up').length;
         const totalCount = history.length || 1;
         const uptime = Math.round((upCount / totalCount) * 100);
-
-        // Global Stats calculations
         if (m.status === 'up') onlineCount++;
         if (m.status === 'down') globalStatus = 'degraded';
         totalLatency += m.response_time || 0;
-
         return { ...m, history, uptime };
     });
-
     const avgLatency = monitors.length > 0 ? Math.round(totalLatency / monitors.length) : 0;
-
-    // If less than 80% services are up, mark as outage
     if ((onlineCount / monitors.length) < 0.8 && monitors.length > 0) globalStatus = 'outage';
     res.render('index', {
         monitors: enriched,
-        stats: {
-            active: monitors.length,
-            online: onlineCount,
-            avgLatency,
-            status: globalStatus
-        }
+        settings,
+        stats: { active: monitors.length, online: onlineCount, avgLatency, status: globalStatus }
     });
 });
 
@@ -100,7 +87,8 @@ adminApp.get('/', (req, res) => res.redirect('/admin'));
 adminApp.get('/admin', (req, res) => {
     if (!req.session.authenticated) return res.redirect('/login');
     const monitors = db.prepare('SELECT * FROM monitors').all();
-    res.render('admin', { monitors });
+    const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
+    res.render('admin', { monitors, settings });
 });
 
 adminApp.get('/login', (req, res) => res.render('login'));
@@ -151,6 +139,15 @@ adminApp.post('/api/monitors/edit/:id', (req, res) => {
         console.error("Failed to update monitor:", err);
         res.redirect('/admin?error=update_failed');
     }
+});
+
+// API: Update Settings
+adminApp.post('/api/settings', (req, res) => {
+    if (!req.session.authenticated) return res.status(401).send();
+    const { title, logo_url, footer_text } = req.body;
+    db.prepare(`UPDATE settings SET title = ?, logo_url = ?, footer_text = ? WHERE id = 1`)
+      .run(title, logo_url, footer_text);
+    res.redirect('/admin');
 });
 
 // START BOTH SERVERS

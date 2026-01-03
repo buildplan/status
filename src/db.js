@@ -1,53 +1,56 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import fs from 'fs';
 
-// Ensure data directory exists
-const dataDir = process.env.DATA_DIR || './data';
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const dataDir = path.join(__dirname, '../data');
+
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir);
+}
 
 const db = new Database(path.join(dataDir, 'monitor.db'));
 
-// Initialize Tables
+// Monitors Table
 db.exec(`
-  CREATE TABLE IF NOT EXISTS monitors (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    type TEXT DEFAULT 'http',
-    url TEXT NOT NULL,
-    interval INTEGER DEFAULT 60,
-    status TEXT DEFAULT 'pending',
-    last_checked DATETIME,
-    response_time INTEGER,
-    notification_url TEXT,
-    notification_token TEXT -- New column
-  );
-
-  CREATE TABLE IF NOT EXISTS heartbeats (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    monitor_id INTEGER,
-    status TEXT,
-    latency INTEGER,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(monitor_id) REFERENCES monitors(id) ON DELETE CASCADE
-  );
-
-  CREATE TRIGGER IF NOT EXISTS clean_old_heartbeats
-  AFTER INSERT ON heartbeats
-  BEGIN
-    DELETE FROM heartbeats WHERE timestamp < datetime('now', '-30 days');
-  END;
+    CREATE TABLE IF NOT EXISTS monitors (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        url TEXT,
+        type TEXT DEFAULT 'http',
+        interval INTEGER DEFAULT 60,
+        status TEXT DEFAULT 'pending',
+        response_time INTEGER DEFAULT 0,
+        last_checked DATETIME,
+        notification_url TEXT,
+        notification_token TEXT
+    )
 `);
 
-try {
-    const columns = db.prepare("PRAGMA table_info(monitors)").all();
-    const hasToken = columns.some(c => c.name === 'notification_token');
-    if (!hasToken) {
-        console.log("⚙️ Migrating DB: Adding notification_token column...");
-        db.prepare("ALTER TABLE monitors ADD COLUMN notification_token TEXT").run();
-    }
-} catch (e) {
-    console.error("Migration warning:", e.message);
-}
+// Heartbeats Table
+db.exec(`
+    CREATE TABLE IF NOT EXISTS heartbeats (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        monitor_id INTEGER,
+        status TEXT,
+        latency INTEGER,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(monitor_id) REFERENCES monitors(id) ON DELETE CASCADE
+    )
+`);
+
+// Settings Table
+db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY CHECK (id = 1), -- Ensure only one row exists
+        title TEXT DEFAULT 'System Status',
+        logo_url TEXT DEFAULT '',
+        footer_text TEXT DEFAULT 'WiredAlter Status. All Systems Operational.'
+    )
+`);
+
+// Initialize default settings if they don't exist
+db.prepare(`INSERT OR IGNORE INTO settings (id, title, logo_url, footer_text) VALUES (1, 'System Status', '', 'WiredAlter Status. All Systems Operational.')`).run();
 
 export default db;
