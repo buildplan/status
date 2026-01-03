@@ -11,6 +11,7 @@ if (!fs.existsSync(dataDir)) {
 }
 
 const db = new Database(path.join(dataDir, 'monitor.db'));
+db.pragma('journal_mode = WAL');
 
 // Monitors Table
 db.exec(`
