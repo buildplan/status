@@ -9,6 +9,7 @@ services:
       - "127.0.0.1:4909:3001" # admin - admin only, keep it local
     environment:
       - NODE_ENV=production  # change to development for testing or serve over https behind reverse proxy
+      - TZ=Europe/London  # <--- Set your timezone here
       # Use the .env file to set these variables!
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - SESSION_SECRET=${SESSION_SECRET}

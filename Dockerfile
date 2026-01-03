@@ -11,7 +11,7 @@ RUN npm install --omit=dev
 # STAGE 2: Runner
 FROM node:24-alpine
 
-RUN apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init tzdata
 
 ENV NODE_ENV=production
 WORKDIR /app
