@@ -4,10 +4,11 @@ services:
     container_name: status-service
     restart: always
     ports:
-      - "127.0.0.1:3909:3000"
+      - "127.0.0.1:3909:3000" # public
+      - "127.0.0.1:4909:3001" # admin
     environment:
       - NODE_ENV=development
       - ADMIN_PASSWORD=thispasswordisN0Tstrongenough  # CHANGE THIS
-      - SESSION_SECRET=randomandorderedwordsarefighting
+      - SESSION_SECRET=this_is_a_very_long_secure_password_for_cookie_encryption_32chars
     volumes:
       - ./data:/app/data
