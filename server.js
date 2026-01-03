@@ -30,8 +30,6 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// --- FIXED SESSION MIDDLEWARE ---
-// We manually retrieve the session and attach it to the request
 app.use(async (req, res, next) => {
     try {
         req.session = await getIronSession(req, res, sessionConfig);
@@ -97,6 +95,24 @@ app.post('/api/monitors/delete/:id', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     db.prepare('DELETE FROM monitors WHERE id = ?').run(req.params.id);
     res.redirect('/admin');
+});
+
+// API: Edit Monitor
+app.post('/api/monitors/edit/:id', (req, res) => {
+    if (!req.session.authenticated) return res.status(401).send();
+    const { name, url, interval, notification_url, notification_token } = req.body;
+    const id = req.params.id;
+    try {
+        db.prepare(`
+            UPDATE monitors
+            SET name = ?, url = ?, interval = ?, notification_url = ?, notification_token = ?
+            WHERE id = ?
+        `).run(name, url, interval || 60, notification_url, notification_token, id);
+        res.redirect('/admin');
+    } catch (err) {
+        console.error("Failed to update monitor:", err);
+        res.redirect('/admin?error=update_failed');
+    }
 });
 
 // Start
