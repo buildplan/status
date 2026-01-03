@@ -51,7 +51,7 @@ app.get('/', (req, res) => {
         const history = db.prepare('SELECT status, latency, timestamp FROM heartbeats WHERE monitor_id = ? ORDER BY id DESC LIMIT 50').all(m.id).reverse();
         return { ...m, history };
     });
-    
+
     res.render('index', { monitors: enriched });
 });
 
@@ -65,7 +65,7 @@ app.get('/admin', (req, res) => {
 // Login
 app.get('/login', (req, res) => res.render('login'));
 
-app.post('/login', async (req, res) => { 
+app.post('/login', async (req, res) => {
     if (req.body.password === ADMIN_PASSWORD) {
         req.session.authenticated = true;
         await req.session.save(); // REQUIRED: Explicit save
@@ -84,8 +84,11 @@ app.get('/logout', async (req, res) => {
 // API: Add Monitor
 app.post('/api/monitors', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
-    const { name, url, notification_url } = req.body;
-    db.prepare('INSERT INTO monitors (name, url, notification_url) VALUES (?, ?, ?)').run(name, url, notification_url);
+    const { name, url, notification_url, notification_token } = req.body;
+    db.prepare(`
+        INSERT INTO monitors (name, url, notification_url, notification_token)
+        VALUES (?, ?, ?, ?)
+    `).run(name, url, notification_url, notification_token);
     res.redirect('/admin');
 });
 

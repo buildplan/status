@@ -1,23 +1,43 @@
 import db from './db.js';
 
 // --- NOTIFICATION HANDLERS ---
-async function sendNotification(url, message, status) {
-    if (!url) return;
+async function sendNotification(monitor, message, status) {
+    if (!monitor.notification_url) return;
 
     try {
-        // Generic Webhook / Ntfy / Discord / Gotify Payload
-        const payload = url.includes('discord')
-            ? { content: `**${status.toUpperCase()}:** ${message}` }
-            : { message: message, title: `Service ${status.toUpperCase()}`, priority: status === 'down' ? 5 : 3 };
+        const headers = { 'Content-Type': 'application/json' };
 
-        await fetch(url, {
+        // Add Authorization header if token exists (Standard for Ntfy/Gotify)
+        if (monitor.notification_token) {
+            headers['Authorization'] = `Bearer ${monitor.notification_token}`;
+        }
+
+        // Payload Construction
+        let payload = {};
+
+        if (monitor.notification_url.includes('discord')) {
+            // Discord format
+            payload = { content: `**${status.toUpperCase()}:** ${message}` };
+        } else {
+            // Ntfy / Generic format
+            payload = {
+                topic: monitor.notification_url.split('/').pop(), // Fallback for ntfy
+                message: message,
+                title: `Service ${status.toUpperCase()}: ${monitor.name}`,
+                priority: status === 'down' ? 5 : 3,
+                tags: status === 'down' ? ['rotating_light'] : ['white_check_mark']
+            };
+        }
+
+        await fetch(monitor.notification_url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: headers,
             body: JSON.stringify(payload)
         });
-        console.log(`🔔 Notification sent to ${url}`);
+
+        console.log(`🔔 Notification sent for ${monitor.name}`);
     } catch (e) {
-        console.error("❌ Notification failed:", e.message);
+        console.error(`❌ Notification failed for ${monitor.name}:`, e.message);
     }
 }
 
@@ -29,7 +49,7 @@ async function checkService(monitor) {
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         const res = await fetch(monitor.url, {
             method: 'GET',
@@ -40,16 +60,18 @@ async function checkService(monitor) {
         clearTimeout(timeoutId);
         latency = Math.round(performance.now() - start);
 
+        // Consider 2xx success
         if (res.ok) status = 'up';
     } catch (e) {
         latency = 0;
         status = 'down';
     }
 
-    // State Change Detection?
+    // State Change Detection
     if (monitor.status !== status && monitor.status !== 'pending') {
         const msg = `Monitor ${monitor.name} is now ${status.toUpperCase()} (${monitor.url})`;
-        sendNotification(monitor.notification_url, msg, status);
+        // Pass the full monitor object to access token/url
+        sendNotification(monitor, msg, status);
     }
 
     // Update DB
@@ -68,12 +90,13 @@ async function checkService(monitor) {
 export function startMonitoring() {
     console.log("🚀 Monitoring Engine Started");
 
+    // Check every 60 seconds
     setInterval(() => {
         const monitors = db.prepare('SELECT * FROM monitors').all();
         monitors.forEach(m => checkService(m));
-    }, 60000); // Check every 60 seconds (Can be made dynamic per monitor later)
+    }, 60000);
 
-    // Run once immediately on start
+    // Run immediate check on start
     const monitors = db.prepare('SELECT * FROM monitors').all();
     monitors.forEach(m => checkService(m));
 }

@@ -13,13 +13,14 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS monitors (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    type TEXT DEFAULT 'http', -- http, ping
+    type TEXT DEFAULT 'http',
     url TEXT NOT NULL,
-    interval INTEGER DEFAULT 60, -- seconds
-    status TEXT DEFAULT 'pending', -- up, down, pending
+    interval INTEGER DEFAULT 60,
+    status TEXT DEFAULT 'pending',
     last_checked DATETIME,
     response_time INTEGER,
-    notification_url TEXT
+    notification_url TEXT,
+    notification_token TEXT -- New column
   );
 
   CREATE TABLE IF NOT EXISTS heartbeats (
@@ -31,12 +32,22 @@ db.exec(`
     FOREIGN KEY(monitor_id) REFERENCES monitors(id) ON DELETE CASCADE
   );
 
-  -- Auto-cleanup old heartbeats (keep last 30 days)
   CREATE TRIGGER IF NOT EXISTS clean_old_heartbeats
   AFTER INSERT ON heartbeats
   BEGIN
     DELETE FROM heartbeats WHERE timestamp < datetime('now', '-30 days');
   END;
 `);
+
+try {
+    const columns = db.prepare("PRAGMA table_info(monitors)").all();
+    const hasToken = columns.some(c => c.name === 'notification_token');
+    if (!hasToken) {
+        console.log("⚙️ Migrating DB: Adding notification_token column...");
+        db.prepare("ALTER TABLE monitors ADD COLUMN notification_token TEXT").run();
+    }
+} catch (e) {
+    console.error("Migration warning:", e.message);
+}
 
 export default db;
