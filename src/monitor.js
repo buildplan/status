@@ -88,15 +88,16 @@ async function checkService(monitor) {
 
 // --- LOOP ---
 export function startMonitoring() {
-    console.log("🚀 Monitoring Engine Started");
-
-    // Check every 60 seconds
+    console.log("🚀 Monitoring Engine Started (Tick-based)");
     setInterval(() => {
         const monitors = db.prepare('SELECT * FROM monitors').all();
-        monitors.forEach(m => checkService(m));
-    }, 60000);
-
-    // Run immediate check on start
-    const monitors = db.prepare('SELECT * FROM monitors').all();
-    monitors.forEach(m => checkService(m));
+        const now = Date.now();
+        monitors.forEach(m => {
+            const lastChecked = m.last_checked ? new Date(m.last_checked + 'Z').getTime() : 0;
+            const nextCheck = lastChecked + (m.interval * 1000);
+            if (now >= nextCheck) {
+                checkService(m);
+            }
+        });
+    }, 1000); // 1000ms = 1 second
 }

@@ -84,11 +84,11 @@ app.get('/logout', async (req, res) => {
 // API: Add Monitor
 app.post('/api/monitors', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
-    const { name, url, notification_url, notification_token } = req.body;
+    const { name, url, notification_url, notification_token, interval } = req.body;
     db.prepare(`
-        INSERT INTO monitors (name, url, notification_url, notification_token)
-        VALUES (?, ?, ?, ?)
-    `).run(name, url, notification_url, notification_token);
+        INSERT INTO monitors (name, url, notification_url, notification_token, interval)
+        VALUES (?, ?, ?, ?, ?)
+    `).run(name, url, notification_url, notification_token, interval || 60);
     res.redirect('/admin');
 });
 

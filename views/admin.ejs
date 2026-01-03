@@ -75,6 +75,13 @@
                             <p class="text-[10px] text-slate-600 mt-1">Bearer token for private Ntfy topics.</p>
                         </div>
 
+			<div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Check Interval (Seconds)</label>
+                            <input type="number" name="interval" value="60" min="10" required 
+                                class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                            <p class="text-[10px] text-slate-600 mt-1">How often to check this service.</p>
+                        </div>
+
                         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg transition-colors mt-2 text-sm shadow-lg shadow-emerald-900/20">
                             Create Monitor
                         </button>
