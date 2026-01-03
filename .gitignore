@@ -1,2 +1,32 @@
-data/monitor.db
-*/*.db
+# OS & Editor Junk
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.vscode/
+.idea/
+*.swp
+*.swo
+docker-compose-*
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# Env Secrets
+.env
+.env.local
+.env.*
+
+# Database & Data Dir
+*.db
+*.sqlite
+*.sqlite3
+
+# Ignore EVERYTHING inside the data folder...
+data/*
+!data/.gitkeep

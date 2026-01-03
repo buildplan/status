@@ -1,5 +1,24 @@
+# Ignore Git
 .git
-.github
-data/
-docker-compose*
+.gitignore
 
+node_modules
+
+# Ignore Editor & OS files
+.vscode
+.DS_Store
+*.swp
+*.swo
+
+# Ignore Docker meta-files
+Dockerfile
+docker-compose-*.yml
+.dockerignore
+README.md
+
+# Ignore Secrets
+.env
+.env.*
+
+# Ignore Local Data
+data
