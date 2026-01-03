@@ -22,3 +22,5 @@ README.md
 
 # Ignore Local Data
 data
+caddy_*
+Caddyfile

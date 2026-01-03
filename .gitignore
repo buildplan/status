@@ -30,3 +30,4 @@ logs/
 # Ignore EVERYTHING inside the data folder...
 data/*
 !data/.gitkeep
+caddy_*
