@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getIronSession } from 'iron-session';
@@ -23,6 +24,7 @@ const sessionConfig = {
 
 // APP 1: PUBLIC INTERFACE (Port 3000)
 const publicApp = express();
+publicApp.use(helmet());
 publicApp.set('view engine', 'ejs');
 publicApp.set('views', path.join(__dirname, 'views'));
 publicApp.use(express.static('public')); // Serve CSS/Assets
@@ -55,6 +57,7 @@ publicApp.get('/', (req, res) => {
 
 // APP 2: ADMIN INTERFACE (Port 3001)
 const adminApp = express();
+adminApp.use(helmet());
 adminApp.use(express.urlencoded({ extended: true }));
 adminApp.set('view engine', 'ejs');
 adminApp.set('views', path.join(__dirname, 'views'));
