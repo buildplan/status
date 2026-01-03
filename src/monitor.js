@@ -67,10 +67,10 @@ async function checkService(monitor) {
         status = 'down';
     }
 
-    // State Change Detection
+    const icon = status === 'up' ? '✅' : '🔴';
+    console.log(`${icon} [${new Date().toLocaleTimeString()}] ${monitor.name}: ${status.toUpperCase()} (${latency}ms)`);
     if (monitor.status !== status && monitor.status !== 'pending') {
         const msg = `Monitor ${monitor.name} is now ${status.toUpperCase()} (${monitor.url})`;
-        // Pass the full monitor object to access token/url
         sendNotification(monitor, msg, status);
     }
 
