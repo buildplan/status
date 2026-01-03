@@ -23,6 +23,28 @@
         
         .stat-transition { transition: all 0.15s ease-out; }
 
+        /* --- LAYOUT MODES --- */
+        /* In Grid Mode, force the card header to stack vertically */
+        .layout-grid .card-header-flex {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .layout-grid .card-header-right {
+            width: 100%;
+            justify-content: space-between;
+            margin-left: 0;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        /* In List Mode (Default), keep it side-by-side on larger screens */
+        @media (min-width: 640px) {
+            .card-header-flex {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
         /* --- LIGHT MODE OVERRIDES --- */
         body.light-mode { background-color: #f8fafc; color: #334155; }
         body.light-mode .glass { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
@@ -38,6 +60,9 @@
         body.light-mode .text-slate-500 { color: #94a3b8 !important; }
         
         body.light-mode .bg-slate-800 { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #64748b !important; }
+        
+        /* Light mode border for grid view separation */
+        body.light-mode .layout-grid .card-header-right { border-top: 1px solid #e2e8f0; }
     </style>
 </head>
 <body class="text-slate-300 min-h-screen flex flex-col">
@@ -123,9 +148,9 @@
                     
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br <%= m.status === 'up' ? 'from-emerald-500/5' : 'from-red-500/5' %> to-transparent rounded-bl-full pointer-events-none"></div>
 
-                    <div class="flex flex-wrap sm:flex-nowrap justify-between items-center gap-4 mb-6">
+                    <div class="card-header-flex flex flex-wrap justify-between gap-4 mb-6">
                         
-                        <div class="flex items-center gap-4 z-10 min-w-0">
+                        <div class="flex items-center gap-4 z-10 min-w-0 flex-1">
                             <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 <%= m.status === 'up' ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-red-500/10 border border-red-500/20' %>">
                                 <% if (m.status === 'up') { %>
                                     <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -133,7 +158,7 @@
                                     <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                 <% } %>
                             </div>
-                            <div class="min-w-0">
+                            <div class="min-w-0 flex-grow">
                                 <h3 class="text-lg font-bold text-white flex items-center gap-2 truncate">
                                     <%= m.name %>
                                     <% if (m.uptime === 100) { %>
@@ -146,7 +171,7 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-4 ml-auto z-10">
+                        <div class="card-header-right flex items-center gap-4 z-10 flex-shrink-0 ml-auto">
                             
                             <div class="hidden sm:block w-24 h-10 opacity-40 shrink-0">
                                 <% 
@@ -154,7 +179,7 @@
                                     const maxLat = Math.max(...h.map(x => x.latency), 100); 
                                     let points = "";
                                     h.forEach((pt, i) => {
-                                        const x = (i / (h.length - 1 || 1)) * 100; // Normalizing to 100 wide
+                                        const x = (i / (h.length - 1 || 1)) * 100;
                                         const y = 40 - ((pt.latency / maxLat) * 40);
                                         points += `${x},${y} `;
                                     });
@@ -185,7 +210,7 @@
                     <div class="relative mt-2" onmouseleave="resetStats(<%= m.id %>, '<%= m.response_time %>')">
                         <div class="flex items-end gap-[3px] h-10 w-full">
                             <% m.history.forEach(h => { %>
-                                <div class="flex-1 min-w-[4px] rounded-sm transition-all hover:opacity-100 hover:scale-y-110 hover:bg-white origin-bottom cursor-crosshair
+                                <div class="flex-1 min-w-[4px] rounded-sm transition-all hover:opacity-100 hover:scale-y-110 hover:bg-white origin-bottom cursor-pointer
                                     <%= h.status === 'up' ? (h.latency > 500 ? 'bg-yellow-500 opacity-60' : 'bg-emerald-500 opacity-40') : 'bg-red-500 opacity-80' %>"
                                     style="height: <%= h.status === 'down' ? '100%' : Math.max(20, Math.min(100, (h.latency / 2))) + '%' %>;"
                                     onmouseenter="updateStats(<%= m.id %>, '<%= h.latency %>', '<%= new Date(h.timestamp).toLocaleTimeString() %>', '<%= h.status %>')">
@@ -226,15 +251,18 @@
                 iconList.classList.add('hidden');
                 iconGrid.classList.remove('hidden');
                 localStorage.setItem('layout', 'grid');
+                container.classList.add('layout-grid'); // ADDED CLASS FOR CSS
             } else {
                 iconList.classList.remove('hidden');
                 iconGrid.classList.add('hidden');
                 localStorage.setItem('layout', 'list');
+                container.classList.remove('layout-grid'); // REMOVE CLASS
             }
         }
 
         if (localStorage.getItem('layout') === 'grid') {
             container.classList.add('md:grid-cols-2');
+            container.classList.add('layout-grid'); // RESTORE CLASS
             iconList.classList.add('hidden');
             iconGrid.classList.remove('hidden');
         }
