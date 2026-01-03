@@ -2,13 +2,14 @@ services:
   status:
     build: .
     container_name: status-service
-    restart: always
+    restart: unless
+    user: "1001:1001" # required to set correct permissions
     ports:
-      - "127.0.0.1:3909:3000" # public
-      - "127.0.0.1:4909:3001" # admin
+      - "3909:3000"           # public - expose status page
+      - "127.0.0.1:4909:3001" # admin - admin only, keep it local
     environment:
       - NODE_ENV=development
-      - ADMIN_PASSWORD=thispasswordisN0Tstrongenough  # CHANGE THIS
-      - SESSION_SECRET=this_is_a_very_long_secure_password_for_cookie_encryption_32chars
+      - ADMIN_PASSWORD=th!sp@sswordisN0T$trongenough  # CHANGE THIS
+      - SESSION_SECRET=this_is_a_very_long_string_passphrase_for_cookie_encryption_32chars # change this
     volumes:
       - ./data:/app/data
