@@ -33,6 +33,7 @@ const helmetConfig = {
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
             connectSrc: ["'self'", "https:"],
+            upgradeInsecureRequests: null,
         },
     },
 };
@@ -98,7 +99,6 @@ adminApp.use(async (req, res, next) => {
     }
 });
 
-
 // Admin Routes
 adminApp.get('/', (req, res) => res.redirect('/admin'));
 
@@ -159,7 +159,6 @@ adminApp.post('/api/monitors/edit/:id', (req, res) => {
     }
 });
 
-// API: Update Settings
 adminApp.post('/api/settings', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     const { title, logo_url, footer_text } = req.body;
