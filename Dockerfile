@@ -40,9 +40,8 @@ COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --chown=node:node package.json server.js ./
 COPY --chown=node:node src ./src
 COPY --chown=node:node views ./views
-COPY --chown=node:node public ./public
 
-# Expose ports public+admin
+# Expose ports (3000 = Public, 3001 = Admin)
 EXPOSE 3000 3001
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
