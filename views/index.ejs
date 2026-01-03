@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Status</title>
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%2310b981%22/></svg>">
+    <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2310b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>'>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,6 +16,10 @@
         .glass { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .glass-card { background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.6) 100%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2); }
         .hero-bg { background-image: linear-gradient(to bottom, #111827, #0b1120); border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* Theme Toggle Button (Dark Mode Default) */
+        .theme-toggle { color: rgba(255,255,255,0.5); }
+        .theme-toggle:hover { background-color: rgba(255,255,255,0.1); color: #ffffff; }
 
         /* Status Glows */
         .glow-green { box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.4); }
@@ -46,22 +50,25 @@
             border-bottom: 1px solid #e2e8f0; 
         }
 
-        /* Text Color Swaps for Light Mode */
+        /* Light Mode Toggle Button Visibility Fix */
+        body.light-mode .theme-toggle { color: #64748b; /* slate-500 */ }
+        body.light-mode .theme-toggle:hover { background-color: rgba(0,0,0,0.05); color: #0f172a; /* slate-900 */ }
+
+        /* Text Color Swaps */
         body.light-mode .text-white { color: #0f172a !important; }
         body.light-mode .text-slate-300 { color: #475569 !important; }
         body.light-mode .text-slate-400 { color: #64748b !important; }
         body.light-mode .text-slate-500 { color: #94a3b8 !important; }
         
-        /* Ensure charts pop in light mode */
-        body.light-mode .fill-slate-800 { fill: #e2e8f0; } /* For empty chart bars if implemented via SVG */
-        body.light-mode .bg-slate-800 { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #64748b !important; } /* Uptime pills */
+        body.light-mode .fill-slate-800 { fill: #e2e8f0; } 
+        body.light-mode .bg-slate-800 { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #64748b !important; }
     </style>
 </head>
 <body class="text-slate-300 min-h-screen flex flex-col">
 
     <div class="relative hero-bg pt-12 pb-16 px-6 transition-colors duration-300">
         
-        <button onclick="toggleTheme()" class="absolute top-6 right-6 p-2 rounded-full glass hover:bg-white/10 transition-all text-white/50 hover:text-white" aria-label="Toggle Theme">
+        <button onclick="toggleTheme()" class="theme-toggle absolute top-6 right-6 p-2 rounded-full glass transition-all" aria-label="Toggle Theme">
             <svg id="icon-sun" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
             <svg id="icon-moon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
