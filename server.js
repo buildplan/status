@@ -22,17 +22,32 @@ const sessionConfig = {
     }
 };
 
+// --- HELMET CONFIGURATION ---
+// This allows Tailwind CDN, Google Fonts, and inline scripts to work
+const helmetConfig = {
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https:"],
+        },
+    },
+};
+
 // APP 1: PUBLIC INTERFACE (Port 3000)
 const publicApp = express();
-publicApp.use(helmet());
+publicApp.use(helmet(helmetConfig));
 publicApp.set('view engine', 'ejs');
 publicApp.set('views', path.join(__dirname, 'views'));
-publicApp.use(express.static('public')); // Serve CSS/Assets
+publicApp.use(express.static('public'));
 
 // Public Status Page
 publicApp.get('/', (req, res) => {
     const monitors = db.prepare('SELECT * FROM monitors').all();
-    const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get(); // Fetch Settings
+    const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
     let globalStatus = 'operational';
     let totalLatency = 0;
     let onlineCount = 0;
@@ -57,11 +72,11 @@ publicApp.get('/', (req, res) => {
 
 // APP 2: ADMIN INTERFACE (Port 3001)
 const adminApp = express();
-adminApp.use(helmet());
+adminApp.use(helmet(helmetConfig));
 adminApp.use(express.urlencoded({ extended: true }));
 adminApp.set('view engine', 'ejs');
 adminApp.set('views', path.join(__dirname, 'views'));
-adminApp.use(express.static('public')); // Share assets
+adminApp.use(express.static('public'));
 
 
 // Admin Session Middleware
