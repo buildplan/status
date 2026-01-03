@@ -1,0 +1,8 @@
+# Replace with your actual domain name
+status.your-domain.com {
+	# 1. Compress responses for speed
+	encode zstd gzip
+
+	# 2. Forward public traffic to the App on internal port 3000
+	reverse_proxy status:3000
+}
