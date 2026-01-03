@@ -40,17 +40,44 @@ db.exec(`
     )
 `);
 
+// Auto-cleanup
+// Deletes records older than 30 days whenever a new heartbeat is added
+db.exec(`
+    CREATE TRIGGER IF NOT EXISTS clean_old_heartbeats
+    AFTER INSERT ON heartbeats
+    BEGIN
+        DELETE FROM heartbeats WHERE timestamp < datetime('now', '-30 days');
+    END;
+`);
+
 // Settings Table
 db.exec(`
     CREATE TABLE IF NOT EXISTS settings (
-        id INTEGER PRIMARY KEY CHECK (id = 1), -- Ensure only one row exists
+        id INTEGER PRIMARY KEY CHECK (id = 1),
         title TEXT DEFAULT 'System Status',
         logo_url TEXT DEFAULT '',
         footer_text TEXT DEFAULT 'WiredAlter Status. All Systems Operational.'
     )
 `);
 
-// Initialize default settings if they don't exist
+// Initialize Default Settings
 db.prepare(`INSERT OR IGNORE INTO settings (id, title, logo_url, footer_text) VALUES (1, 'System Status', '', 'WiredAlter Status. All Systems Operational.')`).run();
+
+// Safe Column Addition
+try {
+    const columns = db.prepare("PRAGMA table_info(monitors)").all();
+    const hasToken = columns.some(c => c.name === 'notification_token');
+    if (!hasToken) {
+        console.log("⚙️ Migrating DB: Adding notification_token column...");
+        db.prepare("ALTER TABLE monitors ADD COLUMN notification_token TEXT").run();
+    }
+    const hasUrl = columns.some(c => c.name === 'notification_url');
+    if (!hasUrl) {
+        console.log("⚙️ Migrating DB: Adding notification_url column...");
+        db.prepare("ALTER TABLE monitors ADD COLUMN notification_url TEXT").run();
+    }
+} catch (e) {
+    console.error("Migration warning:", e.message);
+}
 
 export default db;
