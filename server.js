@@ -73,16 +73,26 @@ adminApp.set('view engine', 'ejs');
 adminApp.set('views', path.join(__dirname, 'views'));
 adminApp.use(express.static('public')); // Share assets
 
+
 // Admin Session Middleware
 adminApp.use(async (req, res, next) => {
     try {
-        req.session = await getIronSession(req, res, sessionConfig);
+        const isTunnel = req.headers.host?.includes('localhost') || req.headers.host?.includes('127.0.0.1');
+        const dynamicConfig = {
+            ...sessionConfig,
+            cookieOptions: {
+                ...sessionConfig.cookieOptions,
+                secure: process.env.NODE_ENV === 'production' && !isTunnel
+            }
+        };
+        req.session = await getIronSession(req, res, dynamicConfig);
         next();
     } catch (err) {
         console.error("Session Error:", err);
         next(err);
     }
 });
+
 
 // Admin Routes
 adminApp.get('/', (req, res) => res.redirect('/admin'));
