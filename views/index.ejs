@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .bar { transition: height 0.3s; }
+        .bar:hover { opacity: 0.8; transform: scaleY(1.2); }
+    </style>
+</head>
+<body class="bg-[#0b1120] text-slate-300 min-h-screen font-sans">
+    
+    <div class="max-w-4xl mx-auto px-6 py-12">
+        <header class="flex justify-between items-end mb-10">
+            <div>
+                <h1 class="text-3xl font-bold text-white tracking-tight">System Status</h1>
+                <p class="text-slate-500 mt-1">Live service health & uptime monitoring</p>
+            </div>
+            <div class="flex gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Systems Operational
+                </span>
+            </div>
+        </header>
+
+        <div class="space-y-4">
+            <% monitors.forEach(m => { %>
+                <div class="glass rounded-xl p-5 hover:bg-slate-800/50 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-lg <%= m.status === 'up' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400' %>">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <% if (m.status === 'up') { %>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    <% } else { %>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    <% } %>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-semibold text-lg"><%= m.name %></h3>
+                                <a href="<%= m.url %>" target="_blank" class="text-xs text-slate-500 hover:text-blue-400 transition-colors"><%= m.url %></a>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-mono font-bold <%= m.status === 'up' ? 'text-emerald-400' : 'text-red-400' %>">
+                                <%= m.status.toUpperCase() %>
+                            </div>
+                            <div class="text-xs text-slate-500 font-mono mt-1"><%= m.response_time %>ms</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-end gap-[2px] h-8 mt-2 opacity-80">
+                        <% m.history.forEach(h => { %>
+                            <div title="<%= new Date(h.timestamp).toLocaleTimeString() %> - <%= h.latency %>ms" 
+                                 class="flex-1 rounded-sm <%= h.status === 'up' ? 'bg-emerald-500' : 'bg-red-500' %>"
+                                 style="height: <%= Math.min(100, Math.max(20, (h.latency / 2))) %>%;">
+                            </div>
+                        <% }) %>
+                        <% for(let i=0; i < (50 - m.history.length); i++) { %>
+                            <div class="flex-1 h-1 bg-slate-700/30 rounded-sm"></div>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+
+        <footer class="mt-12 text-center text-xs text-slate-600 border-t border-slate-800/50 pt-8">
+            <p>&copy; 2026 WiredAlter Status. <a href="/login" class="hover:text-slate-400">Admin</a></p>
+        </footer>
+    </div>
+    <script>
+        // Auto refresh every 60s
+        setTimeout(() => window.location.reload(), 60000);
+    </script>
+</body>
+</html>

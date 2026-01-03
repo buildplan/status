@@ -1,0 +1,13 @@
+services:
+  status:
+    build: .
+    container_name: status-service
+    restart: always
+    ports:
+      - "127.0.0.1:3909:3000"
+    environment:
+      - NODE_ENV=development
+      - ADMIN_PASSWORD=thispasswordisN0Tstrongenough  # CHANGE THIS
+      - SESSION_SECRET=randomandorderedwordsarefighting
+    volumes:
+      - ./data:/app/data
