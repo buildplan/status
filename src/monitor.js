@@ -2,26 +2,39 @@ import db from './db.js';
 
 // --- NOTIFICATION HANDLERS ---
 async function sendNotification(monitor, message, status) {
-    if (!monitor.notification_url) return;
+    let url = monitor.notification_url;
+    let token = monitor.notification_token;
+
+    // If this monitor has no specific URL, check for global default
+    if (!url) {
+        const settings = db.prepare('SELECT default_notification_url, default_notification_token FROM settings WHERE id = 1').get();
+        if (settings && settings.default_notification_url) {
+            url = settings.default_notification_url;
+            token = settings.default_notification_token;
+        }
+    }
+
+    // If still no URL found, abort
+    if (!url) return;
 
     try {
         const headers = { 'Content-Type': 'application/json' };
 
-        // Add Authorization header if token exists (Standard for Ntfy/Gotify)
-        if (monitor.notification_token) {
-            headers['Authorization'] = `Bearer ${monitor.notification_token}`;
+        // Add Authorization header if token exists
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
         }
 
         // Payload Construction
         let payload = {};
 
-        if (monitor.notification_url.includes('discord')) {
+        if (url.includes('discord')) {
             // Discord format
             payload = { content: `**${status.toUpperCase()}:** ${message}` };
         } else {
             // Ntfy / Generic format
             payload = {
-                topic: monitor.notification_url.split('/').pop(), // Fallback for ntfy
+                topic: url.split('/').pop(), // Fallback for ntfy
                 message: message,
                 title: `Service ${status.toUpperCase()}: ${monitor.name}`,
                 priority: status === 'down' ? 5 : 3,
@@ -29,7 +42,7 @@ async function sendNotification(monitor, message, status) {
             };
         }
 
-        await fetch(monitor.notification_url, {
+        await fetch(url, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(payload)
