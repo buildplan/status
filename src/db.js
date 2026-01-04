@@ -65,7 +65,7 @@ db.exec(`
     )
 `);
 
-// Initialize Default Settings (Explicit values restored for safety)
+// Initialize Default Settings
 db.prepare(`
     INSERT OR IGNORE INTO settings (id, title, logo_url, footer_text)
     VALUES (1, 'System Status', '', 'WiredAlter Status. All Systems Operational.')
@@ -73,9 +73,8 @@ db.prepare(`
 
 // --- MIGRATIONS ---
 try {
-    // 1. Monitors Migrations
+    // 1. Monitor columns
     const monitorCols = db.prepare("PRAGMA table_info(monitors)").all();
-
     if (!monitorCols.some(c => c.name === 'notification_token')) {
         console.log("⚙️ Migrating DB: Adding notification_token column to monitors...");
         db.prepare("ALTER TABLE monitors ADD COLUMN notification_token TEXT").run();
@@ -85,15 +84,13 @@ try {
         db.prepare("ALTER TABLE monitors ADD COLUMN notification_url TEXT").run();
     }
 
-    // 2. Settings Migrations (Global Webhooks)
+    // 2. Settings columns (For Global Webhooks)
     const settingsCols = db.prepare("PRAGMA table_info(settings)").all();
-
     if (!settingsCols.some(c => c.name === 'default_notification_url')) {
         console.log("⚙️ Migrating DB: Adding global notification settings...");
         db.prepare("ALTER TABLE settings ADD COLUMN default_notification_url TEXT DEFAULT ''").run();
         db.prepare("ALTER TABLE settings ADD COLUMN default_notification_token TEXT DEFAULT ''").run();
     }
-
 } catch (e) {
     console.error("Migration warning:", e.message);
 }
