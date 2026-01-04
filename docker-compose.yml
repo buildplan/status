@@ -13,6 +13,8 @@ services:
       # Use the .env file to set these variables!
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - SESSION_SECRET=${SESSION_SECRET}
+      # If set, the app will REJECT traffic not coming to this domain
+      - PUBLIC_URL=${PUBLIC_URL}
     volumes:
       - ./data:/app/data
 
