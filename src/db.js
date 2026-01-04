@@ -10,7 +10,10 @@ if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir);
 }
 
-const db = new Database(path.join(dataDir, 'monitor.db'));
+// Check for verbose flag to enable SQL logging
+const db = new Database(path.join(dataDir, 'monitor.db'), {
+    verbose: process.env.DB_VERBOSE === 'true' ? console.log : null
+});
 db.pragma('journal_mode = WAL');
 
 // Monitors Table
@@ -41,8 +44,7 @@ db.exec(`
     )
 `);
 
-// Auto-cleanup
-// Deletes records older than 30 days whenever a new heartbeat is added
+// Auto-cleanup trigger
 db.exec(`
     CREATE TRIGGER IF NOT EXISTS clean_old_heartbeats
     AFTER INSERT ON heartbeats
@@ -57,26 +59,41 @@ db.exec(`
         id INTEGER PRIMARY KEY CHECK (id = 1),
         title TEXT DEFAULT 'System Status',
         logo_url TEXT DEFAULT '',
-        footer_text TEXT DEFAULT 'WiredAlter Status. All Systems Operational.'
+        footer_text TEXT DEFAULT 'WiredAlter Status. All Systems Operational.',
+        default_notification_url TEXT DEFAULT '',
+        default_notification_token TEXT DEFAULT ''
     )
 `);
 
-// Initialize Default Settings
-db.prepare(`INSERT OR IGNORE INTO settings (id, title, logo_url, footer_text) VALUES (1, 'System Status', '', 'WiredAlter Status. All Systems Operational.')`).run();
+// Initialize Default Settings (Explicit values restored for safety)
+db.prepare(`
+    INSERT OR IGNORE INTO settings (id, title, logo_url, footer_text)
+    VALUES (1, 'System Status', '', 'WiredAlter Status. All Systems Operational.')
+`).run();
 
-// Safe Column Addition
+// --- MIGRATIONS ---
 try {
-    const columns = db.prepare("PRAGMA table_info(monitors)").all();
-    const hasToken = columns.some(c => c.name === 'notification_token');
-    if (!hasToken) {
-        console.log("⚙️ Migrating DB: Adding notification_token column...");
+    // 1. Monitors Migrations
+    const monitorCols = db.prepare("PRAGMA table_info(monitors)").all();
+
+    if (!monitorCols.some(c => c.name === 'notification_token')) {
+        console.log("⚙️ Migrating DB: Adding notification_token column to monitors...");
         db.prepare("ALTER TABLE monitors ADD COLUMN notification_token TEXT").run();
     }
-    const hasUrl = columns.some(c => c.name === 'notification_url');
-    if (!hasUrl) {
-        console.log("⚙️ Migrating DB: Adding notification_url column...");
+    if (!monitorCols.some(c => c.name === 'notification_url')) {
+        console.log("⚙️ Migrating DB: Adding notification_url column to monitors...");
         db.prepare("ALTER TABLE monitors ADD COLUMN notification_url TEXT").run();
     }
+
+    // 2. Settings Migrations (Global Webhooks)
+    const settingsCols = db.prepare("PRAGMA table_info(settings)").all();
+
+    if (!settingsCols.some(c => c.name === 'default_notification_url')) {
+        console.log("⚙️ Migrating DB: Adding global notification settings...");
+        db.prepare("ALTER TABLE settings ADD COLUMN default_notification_url TEXT DEFAULT ''").run();
+        db.prepare("ALTER TABLE settings ADD COLUMN default_notification_token TEXT DEFAULT ''").run();
+    }
+
 } catch (e) {
     console.error("Migration warning:", e.message);
 }
