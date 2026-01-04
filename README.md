@@ -122,3 +122,23 @@ docker compose up -d
 ```
 
 Ensure you pass the correct `USER_ID` and `GROUP_ID` build arguments to match your host user permissions for the mapped volume.
+
+---
+
+## Screenshots
+
+### Public Status Page
+
+<img width="2940" height="2256" alt="image" src="https://github.com/user-attachments/assets/6bc6c93e-d2a7-41f4-9da3-af805dd649a8" />
+
+### Lightmode and layout switch
+
+<img width="2940" height="1846" alt="image" src="https://github.com/user-attachments/assets/ef1d53f4-580c-487a-a080-b6a6c2a8ea56" />
+
+### Admin Interface
+
+<img width="2940" height="1846" alt="image" src="https://github.com/user-attachments/assets/38523d6c-2f89-4d4a-8b53-3336df01cd85" />
+
+### Status Page Configration and Notification settings
+
+<img width="2940" height="1846" alt="image" src="https://github.com/user-attachments/assets/1eada262-eb18-4b82-ab43-c49284254e5f" />
