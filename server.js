@@ -10,6 +10,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // --- CONFIGURATION ---
 const COOKIE_PASSWORD = process.env.SESSION_SECRET || 'complex_password_at_least_32_characters_long';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+const PUBLIC_URL = process.env.PUBLIC_URL;
 
 const sessionConfig = {
     password: COOKIE_PASSWORD,
@@ -23,14 +24,31 @@ const sessionConfig = {
 
 // APP 1: PUBLIC INTERFACE (Port 3000)
 const publicApp = express();
+
+// Security middleware
+if (PUBLIC_URL) {
+    try {
+        const allowedHost = new URL(PUBLIC_URL).host;
+        console.log(`🔒 Security: Restricting public access to host: ${allowedHost}`);
+        publicApp.use((req, res, next) => {
+            if (req.headers.host !== allowedHost) {
+                return res.status(403).send(`Access Denied: Please visit ${PUBLIC_URL}`);
+            }
+            next();
+        });
+    } catch (e) {
+        console.error("❌ Invalid PUBLIC_URL provided. Security middleware skipped.");
+    }
+}
+
 publicApp.set('view engine', 'ejs');
 publicApp.set('views', path.join(__dirname, 'views'));
-publicApp.use(express.static('public')); // Serve CSS/Assets
+publicApp.use(express.static('public'));
 
 // Public Status Page
 publicApp.get('/', (req, res) => {
     const monitors = db.prepare('SELECT * FROM monitors').all();
-    const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get(); // Fetch Settings
+    const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
     let globalStatus = 'operational';
     let totalLatency = 0;
     let onlineCount = 0;
@@ -58,7 +76,7 @@ const adminApp = express();
 adminApp.use(express.urlencoded({ extended: true }));
 adminApp.set('view engine', 'ejs');
 adminApp.set('views', path.join(__dirname, 'views'));
-adminApp.use(express.static('public')); // Share assets
+adminApp.use(express.static('public'));
 
 
 // Admin Session Middleware
@@ -80,7 +98,6 @@ adminApp.use(async (req, res, next) => {
     }
 });
 
-
 // Admin Routes
 adminApp.get('/', (req, res) => res.redirect('/admin'));
 
@@ -88,7 +105,7 @@ adminApp.get('/admin', (req, res) => {
     if (!req.session.authenticated) return res.redirect('/login');
     const monitors = db.prepare('SELECT * FROM monitors').all();
     const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
-    res.render('admin', { monitors, settings });
+    res.render('admin', { monitors, settings, publicUrl: PUBLIC_URL || 'http://localhost:3000' });
 });
 
 adminApp.get('/login', (req, res) => res.render('login'));
@@ -108,7 +125,7 @@ adminApp.get('/logout', async (req, res) => {
     res.redirect('/');
 });
 
-// API Routes (Only accessible on Admin Port)
+// API Routes
 adminApp.post('/api/monitors', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     const { name, url, notification_url, notification_token, interval } = req.body;
@@ -144,9 +161,12 @@ adminApp.post('/api/monitors/edit/:id', (req, res) => {
 // API: Update Settings
 adminApp.post('/api/settings', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
-    const { title, logo_url, footer_text } = req.body;
-    db.prepare(`UPDATE settings SET title = ?, logo_url = ?, footer_text = ? WHERE id = 1`)
-      .run(title, logo_url, footer_text);
+    const { title, logo_url, footer_text, default_notification_url, default_notification_token } = req.body;
+    db.prepare(`
+        UPDATE settings
+        SET title = ?, logo_url = ?, footer_text = ?, default_notification_url = ?, default_notification_token = ?
+        WHERE id = 1
+    `).run(title, logo_url, footer_text, default_notification_url, default_notification_token);
     res.redirect('/admin');
 });
 
