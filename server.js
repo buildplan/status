@@ -25,6 +25,7 @@ const sessionConfig = {
 // --- HELMET CONFIGURATION ---
 // This allows Tailwind CDN, Google Fonts, and inline scripts to work
 const helmetConfig = {
+    crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
@@ -33,7 +34,6 @@ const helmetConfig = {
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
             connectSrc: ["'self'", "https:"],
-            upgradeInsecureRequests: null,
         },
     },
 };
@@ -126,7 +126,7 @@ adminApp.get('/logout', async (req, res) => {
     res.redirect('/');
 });
 
-// API Routes (Only accessible on Admin Port)
+// API Routes
 adminApp.post('/api/monitors', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     const { name, url, notification_url, notification_token, interval } = req.body;
@@ -159,6 +159,7 @@ adminApp.post('/api/monitors/edit/:id', (req, res) => {
     }
 });
 
+// API: Update Settings
 adminApp.post('/api/settings', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     const { title, logo_url, footer_text } = req.body;
