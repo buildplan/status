@@ -19,35 +19,43 @@ async function sendNotification(monitor, message, status) {
 
     try {
         const headers = { 'Content-Type': 'application/json' };
-
         // Add Authorization header if token exists
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        // Payload Construction
-        let payload = {};
+        let method = 'POST';
+        let body = null;
 
+        // --- 1. DISCORD ---
         if (url.includes('discord')) {
-            // Discord format
-            payload = { content: `**${status.toUpperCase()}:** ${message}` };
-        } else {
-            // Ntfy / Generic format
-            payload = {
-                topic: url.split('/').pop(), // Fallback for ntfy
-                message: message,
-                title: `Service ${status.toUpperCase()}: ${monitor.name}`,
-                priority: status === 'down' ? 5 : 3,
-                tags: status === 'down' ? ['rotating_light'] : ['white_check_mark']
-            };
+            body = JSON.stringify({
+                content: `**${status.toUpperCase()}:** ${message}`
+            });
+        }
+        // --- 2. SLACK ---
+        else if (url.includes('hooks.slack.com')) {
+            body = JSON.stringify({
+                text: `*${status.toUpperCase()}:* ${message}`
+            });
+        }
+        // --- 3. MICROSOFT TEAMS ---
+        else if (url.includes('outlook.office.com') || url.includes('webhook.office.com')) {
+            body = JSON.stringify({
+                "@type": "MessageCard",
+                "themeColor": status === 'up' ? "00FF00" : "FF0000",
+                "title": `Service ${status.toUpperCase()}: ${monitor.name}`,
+                "text": message
+            });
+        }
+        // --- 4. NTFY (Plain Text + Headers) ---
+        else {
+            headers['Title'] = `Service ${status.toUpperCase()}: ${monitor.name}`;
+            headers['Priority'] = status === 'down' ? '5' : '3';
+            headers['Tags'] = status === 'down' ? 'rotating_light' : 'white_check_mark';
+            delete headers['Content-Type'];
+            body = message;
         }
 
-        await fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(payload)
-        });
-
+        await fetch(url, { method, headers, body });
         console.log(`🔔 Notification sent for ${monitor.name}`);
     } catch (e) {
         console.error(`❌ Notification failed for ${monitor.name}:`, e.message);
@@ -101,7 +109,7 @@ async function checkService(monitor) {
 
 // --- LOOP ---
 export function startMonitoring() {
-    console.log("🚀 Monitoring Engine Started (Tick-based)");
+    console.log("🚀 Monitoring Engine Started");
     setInterval(() => {
         const monitors = db.prepare('SELECT * FROM monitors').all();
         const now = Date.now();
