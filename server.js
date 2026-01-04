@@ -1,5 +1,4 @@
 import express from 'express';
-import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getIronSession } from 'iron-session';
@@ -22,33 +21,16 @@ const sessionConfig = {
     }
 };
 
-// --- HELMET CONFIGURATION ---
-// This allows Tailwind CDN, Google Fonts, and inline scripts to work
-const helmetConfig = {
-    crossOriginEmbedderPolicy: false,
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https:"],
-        },
-    },
-};
-
 // APP 1: PUBLIC INTERFACE (Port 3000)
 const publicApp = express();
-publicApp.use(helmet(helmetConfig));
 publicApp.set('view engine', 'ejs');
 publicApp.set('views', path.join(__dirname, 'views'));
-publicApp.use(express.static('public'));
+publicApp.use(express.static('public')); // Serve CSS/Assets
 
 // Public Status Page
 publicApp.get('/', (req, res) => {
     const monitors = db.prepare('SELECT * FROM monitors').all();
-    const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
+    const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get(); // Fetch Settings
     let globalStatus = 'operational';
     let totalLatency = 0;
     let onlineCount = 0;
@@ -73,11 +55,10 @@ publicApp.get('/', (req, res) => {
 
 // APP 2: ADMIN INTERFACE (Port 3001)
 const adminApp = express();
-adminApp.use(helmet(helmetConfig));
 adminApp.use(express.urlencoded({ extended: true }));
 adminApp.set('view engine', 'ejs');
 adminApp.set('views', path.join(__dirname, 'views'));
-adminApp.use(express.static('public'));
+adminApp.use(express.static('public')); // Share assets
 
 
 // Admin Session Middleware
@@ -98,6 +79,7 @@ adminApp.use(async (req, res, next) => {
         next(err);
     }
 });
+
 
 // Admin Routes
 adminApp.get('/', (req, res) => res.redirect('/admin'));
@@ -126,7 +108,7 @@ adminApp.get('/logout', async (req, res) => {
     res.redirect('/');
 });
 
-// API Routes
+// API Routes (Only accessible on Admin Port)
 adminApp.post('/api/monitors', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     const { name, url, notification_url, notification_token, interval } = req.body;
