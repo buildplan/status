@@ -1,5 +1,5 @@
 # STAGE 1: Builder
-FROM node:24-alpine AS builder
+FROM node:25-alpine AS builder
 
 # Install build tools
 RUN apk add --no-cache python3 make g++
@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 # STAGE 2: Runner
-FROM node:24-alpine
+FROM node:25-alpine
 
 # Install runtime requirements
 RUN apk add --no-cache dumb-init tzdata
