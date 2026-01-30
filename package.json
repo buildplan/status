@@ -8,9 +8,9 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
-    "better-sqlite3": "^12.5.0",
+    "better-sqlite3": "^12.6.2",
     "cron": "^4.4.0",
-    "ejs": "^3.1.10",
+    "ejs": "^4.0.1",
     "iron-session": "^8.0.4",
     "express": "^5.2.1",
     "morgan": "^1.10.1"
