@@ -1,0 +1,56 @@
+name: Test Server Boot
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [ "main", "dev" ]
+  push:
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+
+jobs:
+  boot-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 1. Get your code
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. Install Node.js (matching Dockerfile version)
+    - name: Setup Node.js 25
+      uses: actions/setup-node@v4
+      with:
+        node-version: '25'
+        cache: 'npm'
+
+    # 3. Install dependencies
+    - name: Install dependencies
+      run: npm ci
+
+    # 4. Start the server in the background
+    - name: Start Server
+      env:
+        SESSION_SECRET: "ci_test_secret_at_least_32_chars_long"
+        NODE_ENV: "test"
+      run: |
+        npm start &
+        echo "Server process ID: $!"
+
+    # 5. Wait for Port 3000 and Verify
+    - name: Verify Application Boots
+      run: |
+        echo "Waiting for server to listen on port 3000..."
+        npx wait-on http://localhost:3000 --timeout 15000
+        
+        echo "Server is up! Checking status code..."
+        HTTP_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:3000)
+        
+        if [ "$HTTP_CODE" == "200" ]; then
+          echo "✅ Success: Server responded with HTTP 200"
+          exit 0
+        else
+          echo "❌ Failed: Server responded with HTTP $HTTP_CODE"
+          exit 1
+        fi
