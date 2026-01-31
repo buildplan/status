@@ -18,6 +18,9 @@ async function sendNotification(monitor, message, status) {
     if (!url) return;
 
     try {
+        const targetUrl = new URL(url);
+        const hostname = targetUrl.hostname;
+
         const headers = { 'Content-Type': 'application/json' };
         // Add Authorization header if token exists
         if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -26,19 +29,19 @@ async function sendNotification(monitor, message, status) {
         let body = null;
 
         // --- 1. DISCORD ---
-        if (url.includes('discord')) {
+        if (hostname.endsWith('discord.com') || hostname.endsWith('discordapp.com')) {
             body = JSON.stringify({
                 content: `**${status.toUpperCase()}:** ${message}`
             });
         }
         // --- 2. SLACK ---
-        else if (url.includes('hooks.slack.com')) {
+        else if (hostname === 'hooks.slack.com') {
             body = JSON.stringify({
                 text: `*${status.toUpperCase()}:* ${message}`
             });
         }
         // --- 3. MICROSOFT TEAMS ---
-        else if (url.includes('outlook.office.com') || url.includes('webhook.office.com')) {
+        else if (hostname === 'outlook.office.com' || hostname === 'webhook.office.com') {
             body = JSON.stringify({
                 "@type": "MessageCard",
                 "themeColor": status === 'up' ? "00FF00" : "FF0000",

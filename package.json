@@ -11,8 +11,9 @@
     "better-sqlite3": "^12.6.2",
     "cron": "^4.4.0",
     "ejs": "^4.0.1",
-    "iron-session": "^8.0.4",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "iron-session": "^8.0.4",
     "morgan": "^1.10.1"
   }
 }

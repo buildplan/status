@@ -1,4 +1,5 @@
 import express from 'express';
+import { rateLimit } from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getIronSession } from 'iron-session';
@@ -24,6 +25,13 @@ const sessionConfig = {
 
 // APP 1: PUBLIC INTERFACE (Port 3000)
 const publicApp = express();
+const publicLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    limit: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "Too many requests to the status page. Please wait a moment."
+});
 
 // Security middleware
 if (PUBLIC_URL) {
@@ -44,6 +52,7 @@ if (PUBLIC_URL) {
 publicApp.set('view engine', 'ejs');
 publicApp.set('views', path.join(__dirname, 'views'));
 publicApp.use(express.static('public'));
+publicApp.use(publicLimiter);
 
 // Public Status Page
 publicApp.get('/', (req, res) => {
@@ -73,6 +82,15 @@ publicApp.get('/', (req, res) => {
 
 // APP 2: ADMIN INTERFACE (Port 3001)
 const adminApp = express();
+const adminLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	limit: 100,
+	standardHeaders: true,
+	legacyHeaders: false,
+    message: "Too many requests from this IP, please try again after 15 minutes"
+});
+
+adminApp.use(adminLimiter);
 adminApp.use(express.urlencoded({ extended: true }));
 adminApp.set('view engine', 'ejs');
 adminApp.set('views', path.join(__dirname, 'views'));
