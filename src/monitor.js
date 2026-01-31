@@ -1,5 +1,15 @@
 import db from './db.js';
 
+const DISCORD_HOSTS = new Set([
+    'discord.com',
+    'www.discord.com',
+    'canary.discord.com',
+    'ptb.discord.com',
+    'discordapp.com',
+    'canary.discordapp.com',
+    'ptb.discordapp.com'
+]);
+
 // --- NOTIFICATION HANDLERS ---
 async function sendNotification(monitor, message, status) {
     let url = monitor.notification_url;
@@ -18,27 +28,29 @@ async function sendNotification(monitor, message, status) {
     if (!url) return;
 
     try {
+        const targetUrl = new URL(url);
+        const hostname = targetUrl.hostname;
+
         const headers = { 'Content-Type': 'application/json' };
-        // Add Authorization header if token exists
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
         let method = 'POST';
         let body = null;
 
         // --- 1. DISCORD ---
-        if (url.includes('discord')) {
+        if (DISCORD_HOSTS.has(hostname)) {
             body = JSON.stringify({
                 content: `**${status.toUpperCase()}:** ${message}`
             });
         }
         // --- 2. SLACK ---
-        else if (url.includes('hooks.slack.com')) {
+        else if (hostname === 'hooks.slack.com') {
             body = JSON.stringify({
                 text: `*${status.toUpperCase()}:* ${message}`
             });
         }
         // --- 3. MICROSOFT TEAMS ---
-        else if (url.includes('outlook.office.com') || url.includes('webhook.office.com')) {
+        else if (hostname === 'outlook.office.com' || hostname === 'webhook.office.com') {
             body = JSON.stringify({
                 "@type": "MessageCard",
                 "themeColor": status === 'up' ? "00FF00" : "FF0000",
@@ -46,7 +58,7 @@ async function sendNotification(monitor, message, status) {
                 "text": message
             });
         }
-        // --- 4. NTFY (Plain Text + Headers) ---
+        // --- 4. NTFY (Generic Webhook) ---
         else {
             headers['Title'] = `Service ${status.toUpperCase()}: ${monitor.name}`;
             headers['Priority'] = status === 'down' ? '5' : '3';
@@ -81,7 +93,6 @@ async function checkService(monitor) {
         clearTimeout(timeoutId);
         latency = Math.round(performance.now() - start);
 
-        // Consider 2xx success
         if (res.ok) status = 'up';
     } catch (e) {
         latency = 0;
@@ -120,5 +131,5 @@ export function startMonitoring() {
                 checkService(m);
             }
         });
-    }, 1000); // 1000ms = 1 second
+    }, 1000);
 }
