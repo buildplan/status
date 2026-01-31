@@ -1,4 +1,6 @@
 name: Test Server Boot
+permissions:
+  contents: read
 
 on:
   pull_request:
