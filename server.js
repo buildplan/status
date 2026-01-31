@@ -25,7 +25,7 @@ const sessionConfig = {
 
 // APP 1: PUBLIC INTERFACE (Port 3000)
 const publicApp = express();
-publicApp.set('trust proxy', 1);
+publicApp.set('trust proxy', 'loopback, linklocal, uniquelocal');
 const publicLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     limit: 60,
@@ -83,7 +83,7 @@ publicApp.get('/', (req, res) => {
 
 // APP 2: ADMIN INTERFACE (Port 3001)
 const adminApp = express();
-adminApp.set('trust proxy', 1);
+adminApp.set('trust proxy', 'loopback, linklocal, uniquelocal');
 const adminLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000,
 	limit: 100,
