@@ -16,11 +16,11 @@ jobs:
     steps:
     # 1. Get your code
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     # 2. Install Node.js (matching Dockerfile version)
     - name: Setup Node.js 25
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '25'
         cache: 'npm'
