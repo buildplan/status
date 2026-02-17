@@ -1,11 +1,12 @@
 {
   "name": "wiredalter-status",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "build:css": "tailwindcss -i ./views/input.css -o ./public/style.css --config ./views/tailwind.config.js --minify"
   },
   "dependencies": {
     "better-sqlite3": "^12.6.2",
@@ -15,5 +16,8 @@
     "express-rate-limit": "^8.2.1",
     "iron-session": "^8.0.4",
     "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
   }
 }
