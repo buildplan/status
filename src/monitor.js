@@ -77,7 +77,7 @@ async function sendNotification(monitor, message, status) {
 // --- CHECK LOGIC ---
 async function checkService(monitor) {
     const start = performance.now();
-    let status = 'down';
+    let isUp = false;
     let latency = 0;
 
     try {
@@ -93,29 +93,52 @@ async function checkService(monitor) {
         clearTimeout(timeoutId);
         latency = Math.round(performance.now() - start);
 
-        if (res.ok) status = 'up';
+        if (res.ok || (res.status >= 200 && res.status < 400)) {
+            isUp = true;
+        }
     } catch (e) {
         latency = 0;
-        status = 'down';
+        isUp = false;
     }
 
-    const icon = status === 'up' ? '✅' : '🔴';
-    console.log(`${icon} [${new Date().toLocaleTimeString()}] ${monitor.name}: ${status.toUpperCase()} (${latency}ms)`);
-    if (monitor.status !== status && monitor.status !== 'pending') {
-        const msg = `Monitor ${monitor.name} is now ${status.toUpperCase()} (${monitor.url})`;
-        sendNotification(monitor, msg, status);
+    // --- FLAPPING PROTECTION LOGIC ---
+    // 1. If UP: Reset fails, mark as UP immediately
+    if (isUp) {
+        if (monitor.status !== 'up') {
+            const msg = `Monitor ${monitor.name} is RECOVERED (${latency}ms)`;
+            console.log(`✅ [${new Date().toLocaleTimeString()}] ${monitor.name} RECOVERED`);
+            sendNotification(monitor, msg, 'up');
+
+            // Update DB: Status=up, Fails=0
+            db.prepare('UPDATE monitors SET status=?, response_time=?, last_checked=CURRENT_TIMESTAMP, consecutive_fails=0 WHERE id=?').run('up', latency, monitor.id);
+        } else {
+             // Just update latency
+             db.prepare('UPDATE monitors SET response_time=?, last_checked=CURRENT_TIMESTAMP, consecutive_fails=0 WHERE id=?').run(latency, monitor.id);
+        }
+    }
+    // 2. If DOWN: Increment fails, only alert if threshold reached
+    else {
+        const currentFails = (monitor.consecutive_fails || 0) + 1;
+        const THRESHOLD = 3; // Hardcoded for now
+
+        console.log(`⚠️ [${new Date().toLocaleTimeString()}] ${monitor.name} failed check (${currentFails}/${THRESHOLD})`);
+
+        if (currentFails >= THRESHOLD && monitor.status !== 'down') {
+            const msg = `Monitor ${monitor.name} is DOWN after ${currentFails} checks`;
+            console.log(`🔴 [${new Date().toLocaleTimeString()}] ${monitor.name} CONFIRMED DOWN`);
+            sendNotification(monitor, msg, 'down');
+
+            // Mark as down
+            db.prepare('UPDATE monitors SET status=?, response_time=0, last_checked=CURRENT_TIMESTAMP, consecutive_fails=? WHERE id=?').run('down', currentFails, monitor.id);
+        } else {
+            db.prepare('UPDATE monitors SET consecutive_fails=?, last_checked=CURRENT_TIMESTAMP WHERE id=?').run(currentFails, monitor.id);
+        }
     }
 
-    // Update DB
-    db.prepare(`
-        UPDATE monitors
-        SET status = ?, last_checked = CURRENT_TIMESTAMP, response_time = ?
-        WHERE id = ?
-    `).run(status, latency, monitor.id);
-
+    // Log Heartbeat (Always)
     db.prepare(`
         INSERT INTO heartbeats (monitor_id, status, latency) VALUES (?, ?, ?)
-    `).run(monitor.id, status, latency);
+    `).run(monitor.id, isUp ? 'up' : 'down', latency);
 }
 
 // --- LOOP ---
