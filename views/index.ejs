@@ -9,9 +9,9 @@
 </head>
 <body class="text-slate-300 min-h-screen flex flex-col">
 
-    <div class="relative hero-bg pt-12 pb-16 px-6 transition-colors duration-300">
+    <div class="relative hero-bg pt-6 pb-12 md:pt-12 md:pb-16 px-6 transition-colors duration-300">
         
-        <div class="absolute top-6 right-6 flex gap-2">
+        <div class="flex justify-end mb-6 md:absolute md:top-6 md:right-6 md:mb-0 gap-2 z-20">
             <button onclick="toggleLayout()" class="theme-toggle p-2 rounded-full glass transition-all" aria-label="Toggle Layout" title="Switch View">
                 <svg id="icon-grid" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                 <svg id="icon-list" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -35,25 +35,25 @@
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3 px-5 py-3 rounded-full glass border border-white/10 shadow-xl transition-all duration-300">
+                <div class="flex items-center gap-3 px-5 py-3 rounded-full glass border border-white/10 shadow-xl transition-all duration-300 w-full md:w-auto justify-center md:justify-start">
                     <% if (stats.status === 'operational') { %>
                         <span class="relative flex h-4 w-4">
                           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                           <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 glow-green"></span>
                         </span>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col text-left">
                             <span class="text-sm font-bold text-white leading-none">All Systems Operational</span>
                             <span class="text-[10px] text-emerald-400 font-mono mt-1">100% UPTIME TODAY</span>
                         </div>
                     <% } else if (stats.status === 'degraded') { %>
                         <span class="relative inline-flex rounded-full h-4 w-4 bg-yellow-500 glow-yellow animate-pulse"></span>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col text-left">
                             <span class="text-sm font-bold text-white leading-none">Partial Degradation</span>
                             <span class="text-[10px] text-yellow-400 font-mono mt-1">SOME SERVICES DOWN</span>
                         </div>
                     <% } else { %>
                         <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 glow-red animate-pulse"></span>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col text-left">
                             <span class="text-sm font-bold text-white leading-none">Major Outage</span>
                             <span class="text-[10px] text-red-400 font-mono mt-1">CRITICAL FAILURES</span>
                         </div>
@@ -61,7 +61,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-8 md:mt-10">
                 <div class="glass rounded-xl p-4 flex flex-col transition-all duration-300">
                     <span class="text-xs font-bold uppercase text-slate-500 tracking-wider">Monitors</span>
                     <span class="text-2xl font-bold text-white mt-1"><%= stats.active %></span>
@@ -169,11 +169,78 @@
         </div>
     </main>
 
-    <footer class="max-w-5xl mx-auto px-6 mb-8 w-full">
-        <div class="border-t border-slate-800/50 pt-8 flex flex-col items-center">
-            <p class="text-xs text-slate-600 font-medium">
-                &copy; <span id="year"></span> <%= settings.footer_text %>
-            </p>
+    <footer class="max-w-5xl mx-auto px-6 mb-12 w-full">
+        <div class="border-t border-slate-800/50 pt-12">
+
+            <div class="flex flex-col items-center text-center gap-10 mb-12">
+
+                <div class="flex flex-col items-center gap-4">
+                    <% if (settings.logo_url) { %>
+                        <div class="footer-logo-box">
+                            <img src="<%= settings.logo_url %>" alt="Logo" class="w-10 h-10 object-contain grayscale opacity-90 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                        </div>
+                    <% } %>
+                    
+                    <div class="flex flex-col gap-1">
+                        <h3 class="font-bold text-white tracking-tight text-xl"><%= settings.title %></h3>
+                        <p class="text-xs text-slate-500 font-medium tracking-wide uppercase opacity-80">
+                            <%= settings.footer_text %> &nbsp;&bull;&nbsp; &copy; <span id="year"></span>
+                        </p>
+                    </div>
+                </div>
+
+                <% if (settings.footer_info) { %>
+                    <div class="max-w-lg mx-auto">
+                        <div class="h-px w-12 bg-slate-800 mx-auto mb-6"></div>
+                        <p class="text-sm text-slate-400 leading-relaxed whitespace-pre-wrap"><%= settings.footer_info %></p>
+                    </div>
+                <% } %>
+
+                <% if (settings.footer_links && settings.footer_links.length > 0) { %>
+                    <div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+                        <% settings.footer_links.forEach(link => { %>
+                            <a href="<%= link.url %>" target="_blank" class="text-sm text-slate-500 hover:text-blue-400 transition-colors font-medium flex items-center gap-1.5 group">
+                                <%= link.label %>
+                                <svg class="w-3 h-3 opacity-0 -ml-2 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </a>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+
+            <% if (settings.show_footer_stats) { %>
+                <div class="glass stats-bar-bg rounded-2xl px-6 py-6 md:px-8 flex flex-col md:flex-row justify-center md:justify-between items-center gap-6 md:gap-8 transition-colors duration-300 max-w-4xl mx-auto shadow-xl border border-white/5">
+                    
+                    <div class="flex flex-col items-center md:items-start gap-1 min-w-[120px] w-full md:w-auto">
+                        <div class="flex items-center gap-2 text-slate-400 mb-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                            <span class="text-[10px] uppercase font-bold tracking-widest opacity-80">Monitors</span>
+                        </div>
+                        <div class="stats-value text-2xl"><%= stats.active %></div>
+                    </div>
+
+                    <div class="w-full h-px bg-slate-800/50 md:w-px md:h-12 md:bg-gradient-to-b md:from-transparent md:via-slate-700 md:to-transparent"></div>
+
+                    <div class="flex flex-col items-center md:items-start gap-1 min-w-[120px] w-full md:w-auto">
+                        <div class="flex items-center gap-2 text-emerald-400 mb-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-[10px] uppercase font-bold tracking-widest opacity-80">Online</span>
+                        </div>
+                        <div class="stats-value text-2xl"><%= stats.online %> <span class="text-sm text-slate-500 font-normal">/ <%= stats.active %></span></div>
+                    </div>
+
+                    <div class="w-full h-px bg-slate-800/50 md:w-px md:h-12 md:bg-gradient-to-b md:from-transparent md:via-slate-700 md:to-transparent"></div>
+
+                    <div class="flex flex-col items-center md:items-start gap-1 min-w-[120px] w-full md:w-auto">
+                        <div class="flex items-center gap-2 text-blue-400 mb-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span class="text-[10px] uppercase font-bold tracking-widest opacity-80">Avg Latency</span>
+                        </div>
+                        <div class="stats-value text-2xl"><%= stats.avgLatency %><span class="text-sm">ms</span></div>
+                    </div>
+                </div>
+            <% } %>
+
         </div>
     </footer>
 
@@ -193,18 +260,18 @@
                 iconList.classList.add('hidden');
                 iconGrid.classList.remove('hidden');
                 localStorage.setItem('layout', 'grid');
-                container.classList.add('layout-grid'); // ADDED CLASS FOR CSS
+                container.classList.add('layout-grid');
             } else {
                 iconList.classList.remove('hidden');
                 iconGrid.classList.add('hidden');
                 localStorage.setItem('layout', 'list');
-                container.classList.remove('layout-grid'); // REMOVE CLASS
+                container.classList.remove('layout-grid');
             }
         }
 
         if (localStorage.getItem('layout') === 'grid') {
             container.classList.add('md:grid-cols-2');
-            container.classList.add('layout-grid'); // RESTORE CLASS
+            container.classList.add('layout-grid'); 
             iconList.classList.add('hidden');
             iconGrid.classList.remove('hidden');
         }

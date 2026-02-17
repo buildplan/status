@@ -119,7 +119,7 @@ async function checkService(monitor) {
     // 2. If DOWN: Increment fails, only alert if threshold reached
     else {
         const currentFails = (monitor.consecutive_fails || 0) + 1;
-        const THRESHOLD = 3; // Hardcoded for now
+        const THRESHOLD = monitor.threshold || 3;
 
         console.log(`⚠️ [${new Date().toLocaleTimeString()}] ${monitor.name} failed check (${currentFails}/${THRESHOLD})`);
 
