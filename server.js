@@ -128,7 +128,7 @@ adminApp.get('/admin', (req, res) => {
     res.render('admin', { monitors, settings, publicUrl: PUBLIC_URL || 'http://localhost:3000' });
 });
 
-adminApp.get('/login', (req, res) => res.render('login'));
+adminApp.get('/login', (req, res) => res.render('login', { publicUrl: PUBLIC_URL || 'http://localhost:3000' }));
 
 adminApp.post('/login', async (req, res) => {
     if (req.body.password === ADMIN_PASSWORD) {
