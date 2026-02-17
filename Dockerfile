@@ -50,4 +50,4 @@ COPY --from=builder --chown=node:node /app/public ./public
 EXPOSE 3000 3001
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["node", "server.js"]
+CMD ["node", "--dns-result-order=ipv4first", "server.js"]
