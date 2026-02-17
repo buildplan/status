@@ -171,10 +171,10 @@
 
     <footer class="max-w-5xl mx-auto px-6 mb-12 w-full">
         <div class="border-t border-slate-800/50 pt-10">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
-                
-                <div class="lg:col-span-1">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10 justify-items-center text-center lg:text-left">
+
+                <div class="lg:col-span-1 flex flex-col items-center lg:items-start w-full">
                     <div class="flex items-center gap-3 mb-4">
                         <% if (settings.logo_url) { %>
                             <img src="<%= settings.logo_url %>" alt="Logo" class="w-8 h-8 object-contain rounded-md grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all">
@@ -188,21 +188,21 @@
                 </div>
 
                 <% if (settings.footer_info) { %>
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-2 w-full flex flex-col items-center lg:items-start">
                     <h4 class="text-xs font-bold uppercase text-slate-500 mb-4 tracking-wider">Information</h4>
-                    <p class="text-sm text-slate-400 leading-relaxed whitespace-pre-wrap"><%= settings.footer_info %></p>
+                    <p class="text-sm text-slate-400 leading-relaxed whitespace-pre-wrap max-w-lg"><%= settings.footer_info %></p>
                 </div>
                 <% } else { %>
                     <div class="hidden lg:block lg:col-span-2"></div>
                 <% } %>
 
                 <% if (settings.footer_links && settings.footer_links.length > 0) { %>
-                <div class="lg:col-span-1">
+                <div class="lg:col-span-1 w-full flex flex-col items-center lg:items-start">
                     <h4 class="text-xs font-bold uppercase text-slate-500 mb-4 tracking-wider">Links</h4>
                     <ul class="space-y-2">
                         <% settings.footer_links.forEach(link => { %>
                             <li>
-                                <a href="<%= link.url %>" target="_blank" class="text-sm text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                                <a href="<%= link.url %>" target="_blank" class="text-sm text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-2 group justify-center lg:justify-start">
                                     <%= link.label %>
                                     <svg class="w-3 h-3 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                                 </a>
@@ -214,38 +214,38 @@
             </div>
 
             <% if (settings.show_footer_stats) { %>
-                <div class="glass rounded-lg px-6 py-4 flex flex-wrap justify-between items-center gap-4 border border-white/5 bg-slate-900/30">
+                <div class="glass stats-bar-bg rounded-lg px-6 py-4 flex flex-wrap justify-center sm:justify-between items-center gap-4 transition-colors duration-300">
                     <div class="flex items-center gap-3">
                         <div class="p-2 rounded-full bg-slate-800/50 text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         </div>
-                        <div>
-                            <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Active Monitors</div>
-                            <div class="text-sm font-bold text-white"><%= stats.active %></div>
+                        <div class="text-left">
+                            <div class="stats-label">Active Monitors</div>
+                            <div class="stats-value"><%= stats.active %></div>
                         </div>
                     </div>
-                    
-                    <div class="w-px h-8 bg-slate-800 hidden sm:block"></div>
+
+                    <div class="stats-divider"></div>
 
                     <div class="flex items-center gap-3">
                         <div class="p-2 rounded-full bg-slate-800/50 text-emerald-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         </div>
-                        <div>
-                            <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Services Online</div>
-                            <div class="text-sm font-bold text-white"><%= stats.online %> / <%= stats.active %></div>
+                        <div class="text-left">
+                            <div class="stats-label">Services Online</div>
+                            <div class="stats-value"><%= stats.online %> / <%= stats.active %></div>
                         </div>
                     </div>
 
-                    <div class="w-px h-8 bg-slate-800 hidden sm:block"></div>
+                    <div class="stats-divider"></div>
 
                     <div class="flex items-center gap-3">
                         <div class="p-2 rounded-full bg-slate-800/50 text-blue-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
-                        <div>
-                            <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Avg Latency</div>
-                            <div class="text-sm font-bold text-white"><%= stats.avgLatency %>ms</div>
+                        <div class="text-left">
+                            <div class="stats-label">Avg Latency</div>
+                            <div class="stats-value"><%= stats.avgLatency %>ms</div>
                         </div>
                     </div>
                 </div>

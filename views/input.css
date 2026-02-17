@@ -36,6 +36,22 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
 
+  /* --- STATS BAR STYLES --- */
+  .stats-value {
+    @apply text-sm font-bold text-white;
+  }
+  .stats-label {
+    @apply text-[10px] uppercase font-bold text-slate-500 tracking-wider;
+  }
+  .stats-divider {
+    @apply w-px h-8 bg-slate-800 hidden sm:block;
+  }
+  
+  /* --- FOOTER UTILS --- */
+  .footer-brand {
+    @apply flex flex-col items-center text-center lg:items-start lg:text-left;
+  }
+
   .hero-bg {
     background-image: linear-gradient(to bottom, #111827, #0b1120);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -68,7 +84,6 @@
   .stat-transition { transition: all 0.15s ease-out; }
 
   /* --- LAYOUT MODES (Grid vs List) --- */
-  /* In Grid Mode, force the card header to stack vertically */
   .layout-grid .card-header-flex {
     @apply flex-col items-start gap-4;
   }
@@ -76,14 +91,13 @@
     @apply w-full justify-between ml-0 pt-2 border-t border-white/5;
   }
 
-  /* In List Mode (Default), keep it side-by-side on larger screens */
   @media (min-width: 640px) {
     .card-header-flex {
       @apply flex-row items-center;
     }
   }
 
-  /* --- CUSTOM SCROLLBAR (Admin) --- */
+  /* --- CUSTOM SCROLLBAR --- */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: #0f172a; }
   ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
@@ -135,5 +149,16 @@
 
   body.light-mode .layout-grid .card-header-right { 
     border-top: 1px solid #e2e8f0; 
+  }
+
+  /* Light Mode Colors for Stats Bar */
+  body.light-mode .stats-value {
+    @apply text-slate-700;
+  }
+  body.light-mode .stats-divider {
+    @apply bg-slate-200;
+  }
+  body.light-mode .stats-bar-bg {
+    @apply bg-white border-slate-200 shadow-sm;
   }
 }
