@@ -37,20 +37,13 @@
   }
 
   /* --- STATS BAR STYLES --- */
-  .stats-value {
-    @apply text-sm font-bold text-white;
-  }
-  .stats-label {
-    @apply text-[10px] uppercase font-bold text-slate-500 tracking-wider;
-  }
-  .stats-divider {
-    @apply w-px h-8 bg-slate-800 hidden sm:block;
-  }
-  
+  .stats-value { @apply text-sm font-bold text-white; }
+  .stats-label { @apply text-[10px] uppercase font-bold text-slate-500 tracking-wider; }
+  .stats-divider { @apply w-px h-8 bg-slate-800 hidden sm:block; }
+  .stats-icon-bg { @apply bg-slate-800/50; }
+
   /* --- FOOTER UTILS --- */
-  .footer-brand {
-    @apply flex flex-col items-center text-center lg:items-start lg:text-left;
-  }
+  .footer-brand { @apply flex flex-col items-center text-center lg:items-start lg:text-left; }
 
   .hero-bg {
     background-image: linear-gradient(to bottom, #111827, #0b1120);
@@ -58,23 +51,12 @@
   }
 
   /* --- UI ELEMENTS --- */
-  .theme-toggle {
-    color: rgba(255, 255, 255, 0.5);
-  }
-  .theme-toggle:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-  }
+  .theme-toggle { color: rgba(255, 255, 255, 0.5); }
+  .theme-toggle:hover { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
 
-  .tab-btn {
-    @apply text-slate-500 border-b-2 border-transparent;
-  }
-  .tab-btn:hover {
-    @apply text-slate-400;
-  }
-  .tab-btn.active {
-    @apply text-white border-blue-500;
-  }
+  .tab-btn { @apply text-slate-500 border-b-2 border-transparent; }
+  .tab-btn:hover { @apply text-slate-400; }
+  .tab-btn.active { @apply text-white border-blue-500; }
 
   /* --- GLOW EFFECTS --- */
   .glow-green { box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.4); }
@@ -112,9 +94,7 @@
 
 @layer utilities {
   /* --- LIGHT MODE OVERRIDES --- */  
-  body.light-mode {
-    @apply bg-slate-50 text-slate-700;
-  }
+  body.light-mode { @apply bg-slate-50 text-slate-700; }
 
   body.light-mode .glass {
     background: rgba(255, 255, 255, 0.7);
@@ -133,13 +113,17 @@
     border-bottom: 1px solid #e2e8f0;
   }
 
+  body.light-mode .stats-icon-bg { @apply bg-slate-100 text-slate-600; }
+
   body.light-mode .theme-toggle { color: #64748b; }
   body.light-mode .theme-toggle:hover { background-color: rgba(0,0,0,0.05); color: #0f172a; }
 
   body.light-mode .text-white { color: #0f172a !important; }
   body.light-mode .text-slate-300 { color: #475569 !important; }
-  body.light-mode .text-slate-400 { color: #64748b !important; }
+  body.light-mode .text-slate-400 { @apply text-slate-500; }
   body.light-mode .text-slate-500 { color: #94a3b8 !important; }
+  body.light-mode .text-emerald-400 { @apply text-emerald-600; }
+  body.light-mode .text-blue-400 { @apply text-blue-600; }
 
   body.light-mode .bg-slate-800 { 
     background-color: #f1f5f9 !important; 
@@ -147,18 +131,10 @@
     color: #64748b !important; 
   }
 
-  body.light-mode .layout-grid .card-header-right { 
-    border-top: 1px solid #e2e8f0; 
-  }
+  body.light-mode .layout-grid .card-header-right { border-top: 1px solid #e2e8f0; }
 
   /* Light Mode Colors for Stats Bar */
-  body.light-mode .stats-value {
-    @apply text-slate-700;
-  }
-  body.light-mode .stats-divider {
-    @apply bg-slate-200;
-  }
-  body.light-mode .stats-bar-bg {
-    @apply bg-white border-slate-200 shadow-sm;
-  }
+  body.light-mode .stats-value { @apply text-slate-700; }
+  body.light-mode .stats-divider { @apply bg-slate-200; }
+  body.light-mode .stats-bar-bg { @apply bg-white border-slate-200 shadow-sm; }
 }
