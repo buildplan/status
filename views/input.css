@@ -45,6 +45,10 @@
   /* --- FOOTER UTILS --- */
   .footer-brand { @apply flex flex-col items-center text-center lg:items-start lg:text-left; }
 
+  .footer-logo-box {
+    @apply p-3 rounded-2xl bg-slate-800/30 border border-slate-700/50 shadow-inner transition-colors duration-300;
+  }
+
   .hero-bg {
     background-image: linear-gradient(to bottom, #111827, #0b1120);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -116,6 +120,10 @@
   body.light-mode .stats-icon-bg { 
     background-color: #f1f5f9; /* bg-slate-100 */
     color: #475569; /* text-slate-600 */
+  }
+
+  body.light-mode .footer-logo-box {
+    @apply bg-white border-slate-200 shadow-sm;
   }
 
   body.light-mode .theme-toggle { color: #64748b; }
