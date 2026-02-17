@@ -191,7 +191,27 @@ adminApp.post('/api/settings', (req, res) => {
 });
 
 // START BOTH SERVERS
-publicApp.listen(3000, () => console.log(`🌍 Public Status Page running on port 3000`));
-adminApp.listen(3001, () => console.log(`🔒 Admin Dashboard running on port 3001 (Internal Only)`));
+const publicServer = publicApp.listen(3000, () => console.log(`🌍 Public Status Page running on port 3000`));
+const adminServer = adminApp.listen(3001, () => console.log(`🔒 Admin Dashboard running on port 3001 (Internal Only)`));
 
 startMonitoring();
+
+// GRACEFUL SHUTDOWN
+const shutdown = () => {
+    console.log('🛑 SIGTERM/SIGINT received. Shutting down...');
+
+    publicServer.close(() => console.log('🌍 Public server closed'));
+    adminServer.close(() => console.log('🔒 Admin server closed'));
+
+    try {
+        db.close();
+        console.log('💾 Database connection closed');
+        process.exit(0);
+    } catch (err) {
+        console.error('❌ Error during shutdown:', err);
+        process.exit(1);
+    }
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);

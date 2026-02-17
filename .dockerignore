@@ -3,6 +3,7 @@
 .gitignore
 
 node_modules
+renovate.json
 
 # Ignore Editor & OS files
 .vscode
@@ -14,7 +15,6 @@ node_modules
 Dockerfile
 docker-compose-*.yml
 .dockerignore
-README.md
 
 # Ignore Secrets
 .env

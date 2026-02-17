@@ -1,0 +1,139 @@
+@import "./fonts.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    @apply bg-[#0b1120] text-slate-300 transition-colors duration-300;
+  }
+}
+
+@layer components {
+  /* --- SHARED GLASS STYLES --- */
+  .glass {
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-login {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.6) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
+  }
+
+  .glass-header {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .hero-bg {
+    background-image: linear-gradient(to bottom, #111827, #0b1120);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* --- UI ELEMENTS --- */
+  .theme-toggle {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .tab-btn {
+    @apply text-slate-500 border-b-2 border-transparent;
+  }
+  .tab-btn:hover {
+    @apply text-slate-400;
+  }
+  .tab-btn.active {
+    @apply text-white border-blue-500;
+  }
+
+  /* --- GLOW EFFECTS --- */
+  .glow-green { box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.4); }
+  .glow-red { box-shadow: 0 0 15px -3px rgba(239, 68, 68, 0.4); }
+  .glow-yellow { box-shadow: 0 0 15px -3px rgba(234, 179, 8, 0.4); }
+  
+  .stat-transition { transition: all 0.15s ease-out; }
+
+  /* --- LAYOUT MODES (Grid vs List) --- */
+  /* In Grid Mode, force the card header to stack vertically */
+  .layout-grid .card-header-flex {
+    @apply flex-col items-start gap-4;
+  }
+  .layout-grid .card-header-right {
+    @apply w-full justify-between ml-0 pt-2 border-t border-white/5;
+  }
+
+  /* In List Mode (Default), keep it side-by-side on larger screens */
+  @media (min-width: 640px) {
+    .card-header-flex {
+      @apply flex-row items-center;
+    }
+  }
+
+  /* --- CUSTOM SCROLLBAR (Admin) --- */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f172a; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+  /* --- INPUT RESET --- */
+  input[type=number]::-webkit-inner-spin-button, 
+  input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; margin: 0; 
+  }
+}
+
+@layer utilities {
+  /* --- LIGHT MODE OVERRIDES --- */  
+  body.light-mode {
+    @apply bg-slate-50 text-slate-700;
+  }
+
+  body.light-mode .glass {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  body.light-mode .glass-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  body.light-mode .hero-bg {
+    background-image: linear-gradient(to bottom, #f1f5f9, #f8fafc);
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  body.light-mode .theme-toggle { color: #64748b; }
+  body.light-mode .theme-toggle:hover { background-color: rgba(0,0,0,0.05); color: #0f172a; }
+
+  body.light-mode .text-white { color: #0f172a !important; }
+  body.light-mode .text-slate-300 { color: #475569 !important; }
+  body.light-mode .text-slate-400 { color: #64748b !important; }
+  body.light-mode .text-slate-500 { color: #94a3b8 !important; }
+
+  body.light-mode .bg-slate-800 { 
+    background-color: #f1f5f9 !important; 
+    border-color: #e2e8f0 !important; 
+    color: #64748b !important; 
+  }
+
+  body.light-mode .layout-grid .card-header-right { 
+    border-top: 1px solid #e2e8f0; 
+  }
+}

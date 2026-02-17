@@ -91,6 +91,11 @@ try {
         db.prepare("ALTER TABLE settings ADD COLUMN default_notification_url TEXT DEFAULT ''").run();
         db.prepare("ALTER TABLE settings ADD COLUMN default_notification_token TEXT DEFAULT ''").run();
     }
+    // 3. Add flapping protection
+    if (!monitorCols.some(c => c.name === 'consecutive_fails')) {
+        console.log("⚙️ Migrating DB: Adding consecutive_fails column...");
+        db.prepare("ALTER TABLE monitors ADD COLUMN consecutive_fails INTEGER DEFAULT 0").run();
+    }
 } catch (e) {
     console.error("Migration warning:", e.message);
 }
