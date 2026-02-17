@@ -3,6 +3,7 @@
 .gitignore
 
 node_modules
+renovate.json
 
 # Ignore Editor & OS files
 .vscode
