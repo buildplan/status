@@ -28,7 +28,9 @@ db.exec(`
         response_time INTEGER DEFAULT 0,
         last_checked DATETIME,
         notification_url TEXT,
-        notification_token TEXT
+        notification_token TEXT,
+        consecutive_fails INTEGER DEFAULT 0,
+        threshold INTEGER DEFAULT 3
     )
 `);
 
@@ -95,6 +97,11 @@ try {
     if (!monitorCols.some(c => c.name === 'consecutive_fails')) {
         console.log("⚙️ Migrating DB: Adding consecutive_fails column...");
         db.prepare("ALTER TABLE monitors ADD COLUMN consecutive_fails INTEGER DEFAULT 0").run();
+    }
+    // 4. Add Threshold
+    if (!monitorCols.some(c => c.name === 'threshold')) {
+        console.log("⚙️ Migrating DB: Adding threshold column...");
+        db.prepare("ALTER TABLE monitors ADD COLUMN threshold INTEGER DEFAULT 3").run();
     }
 } catch (e) {
     console.error("Migration warning:", e.message);

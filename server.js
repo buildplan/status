@@ -148,11 +148,11 @@ adminApp.get('/logout', async (req, res) => {
 // API Routes
 adminApp.post('/api/monitors', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
-    const { name, url, notification_url, notification_token, interval } = req.body;
+    const { name, url, notification_url, notification_token, interval, threshold } = req.body;
     db.prepare(`
-        INSERT INTO monitors (name, url, notification_url, notification_token, interval)
-        VALUES (?, ?, ?, ?, ?)
-    `).run(name, url, notification_url, notification_token, interval || 60);
+        INSERT INTO monitors (name, url, notification_url, notification_token, interval, threshold)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `).run(name, url, notification_url, notification_token, interval || 60, threshold || 3);
     res.redirect('/admin');
 });
 
@@ -164,13 +164,13 @@ adminApp.post('/api/monitors/delete/:id', (req, res) => {
 
 adminApp.post('/api/monitors/edit/:id', (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
-    const { name, url, interval, notification_url, notification_token } = req.body;
+    const { name, url, interval, notification_url, notification_token, threshold } = req.body;
     try {
         db.prepare(`
             UPDATE monitors
-            SET name = ?, url = ?, interval = ?, notification_url = ?, notification_token = ?
+            SET name = ?, url = ?, interval = ?, notification_url = ?, notification_token = ?, threshold = ?
             WHERE id = ?
-        `).run(name, url, interval || 60, notification_url, notification_token, req.params.id);
+        `).run(name, url, interval || 60, notification_url, notification_token, threshold || 3, req.params.id);
         res.redirect('/admin');
     } catch (err) {
         console.error("Failed to update monitor:", err);
