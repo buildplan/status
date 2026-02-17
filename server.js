@@ -59,6 +59,11 @@ publicApp.use(publicLimiter);
 publicApp.get('/', (req, res) => {
     const monitors = db.prepare('SELECT * FROM monitors').all();
     const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
+    try {
+        settings.footer_links = JSON.parse(settings.footer_links || '[]');
+    } catch (e) {
+        settings.footer_links = [];
+    }
     let globalStatus = 'operational';
     let totalLatency = 0;
     let onlineCount = 0;
@@ -180,13 +185,30 @@ adminApp.post('/api/monitors/edit/:id', (req, res) => {
 
 // API: Update Settings
 adminApp.post('/api/settings', (req, res) => {
-    if (!req.session.authenticated) return res.status(401).send();
-    const { title, logo_url, footer_text, default_notification_url, default_notification_token } = req.body;
+    if (!req.session.authenticated) return res.status(401).send();    
+    const { 
+        title, logo_url, footer_text, 
+        default_notification_url, default_notification_token,
+        footer_info, show_footer_stats, link_labels, link_urls 
+    } = req.body;
+    let footerLinks = [];
+    if (link_labels && link_urls) {
+        const labels = Array.isArray(link_labels) ? link_labels : [link_labels];
+        const urls = Array.isArray(link_urls) ? link_urls : [link_urls];
+        footerLinks = labels.map((label, i) => ({ label, url: urls[i] })).filter(l => l.label && l.url);
+    }
+    const statsFlag = show_footer_stats === 'on' ? 1 : 0;
     db.prepare(`
         UPDATE settings
-        SET title = ?, logo_url = ?, footer_text = ?, default_notification_url = ?, default_notification_token = ?
+        SET title = ?, logo_url = ?, footer_text = ?, 
+            default_notification_url = ?, default_notification_token = ?,
+            footer_info = ?, show_footer_stats = ?, footer_links = ?
         WHERE id = 1
-    `).run(title, logo_url, footer_text, default_notification_url, default_notification_token);
+    `).run(
+        title, logo_url, footer_text, 
+        default_notification_url, default_notification_token,
+        footer_info || '', statsFlag, JSON.stringify(footerLinks)
+    );
     res.redirect('/admin');
 });
 

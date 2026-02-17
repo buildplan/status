@@ -103,6 +103,13 @@ try {
         console.log("⚙️ Migrating DB: Adding threshold column...");
         db.prepare("ALTER TABLE monitors ADD COLUMN threshold INTEGER DEFAULT 3").run();
     }
+    // 5. Add Footer Configuration
+    if (!settingsCols.some(c => c.name === 'footer_links')) {
+        console.log("⚙️ Migrating DB: Adding footer configuration columns...");
+        db.prepare("ALTER TABLE settings ADD COLUMN footer_links TEXT DEFAULT '[]'").run();
+        db.prepare("ALTER TABLE settings ADD COLUMN footer_info TEXT DEFAULT ''").run();
+        db.prepare("ALTER TABLE settings ADD COLUMN show_footer_stats INTEGER DEFAULT 0").run();
+    }
 } catch (e) {
     console.error("Migration warning:", e.message);
 }
