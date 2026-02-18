@@ -4,9 +4,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "build:css": "tailwindcss -i ./views/input.css -o ./public/style.css --config ./views/tailwind.config.js --minify"
+    "start": "node --dns-result-order=ipv4first server.js",
+    "dev": "node --dns-result-order=ipv4first --watch server.js",
+    "build:css": "npx @tailwindcss/cli -i ./views/input.css -o ./public/style.css --minify"
   },
   "dependencies": {
     "better-sqlite3": "^12.6.2",
