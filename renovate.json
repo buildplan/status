@@ -9,6 +9,7 @@
       "enabled": false
     },
     {
+      "description": "Automerge non-major updates",
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true
     },
@@ -18,9 +19,16 @@
       "matchPackageNames": ["tailwindcss", "autoprefixer", "postcss"]
     },
     {
-      "description": "Automerge devDependencies (like Tailwind) to keep noise down",
+      "description": "Automerge devDependencies ONLY for minor/patch",
       "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
       "automerge": true
+    },
+    {
+      "description": "Stop Major updates from pushing/merging automatically",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true
     }
   ],
   "ignoreDeps": []
