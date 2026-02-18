@@ -3,7 +3,7 @@ import { rateLimit } from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import session from 'express-session';
-import lusca from 'lusca';
+import { csrfSync } from 'csrf-sync';
 import db from './src/db.js';
 import { startMonitoring } from './src/monitor.js';
 
@@ -107,9 +107,20 @@ adminApp.use(session({
     }
 }));
 
-adminApp.use(lusca.csrf());
+// CSRF protection
+const {
+    csrfSynchronisedProtection,
+    generateToken
+} = csrfSync({
+    getTokenFromRequest: (req) => {
+        return req.body._csrf || req.query._csrf || req.headers['x-csrf-token'];
+    }
+});
+
+adminApp.use(csrfSynchronisedProtection);
+
 adminApp.use((req, res, next) => {
-    res.locals._csrf = req.csrfToken();
+    res.locals._csrf = generateToken(req);
     next();
 });
 
