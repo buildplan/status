@@ -20,6 +20,7 @@
             </div>
 
             <form action="/login" method="POST" class="space-y-6">
+                <input type="hidden" name="_csrf" value="<%= _csrf %>">
                 <div>
                     <label for="password" class="block text-xs font-bold uppercase text-slate-500 mb-2">Password</label>
                     <input type="password" name="password" id="password" required autofocus
