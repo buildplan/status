@@ -3,6 +3,7 @@ import { rateLimit } from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import session from 'express-session';
+import lusca from 'lusca';
 import db from './src/db.js';
 import { startMonitoring } from './src/monitor.js';
 
@@ -105,6 +106,12 @@ adminApp.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
+
+adminApp.use(lusca.csrf());
+adminApp.use((req, res, next) => {
+    res.locals._csrf = req.csrfToken();
+    next();
+});
 
 // Admin Routes
 adminApp.get('/', (req, res) => res.redirect('/admin'));
