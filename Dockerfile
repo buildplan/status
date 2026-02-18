@@ -6,11 +6,11 @@ RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-# Copy package files and install dedependencies
+# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN mkdir -p public/font && cp src/font/*.woff2 public/font/
+RUN cp node_modules/sortablejs/Sortable.min.js public/Sortable.min.js
 RUN npm run build:css
 RUN npm prune --omit=dev
 
