@@ -62,11 +62,12 @@ publicApp.get('/', (req, res) => {
     const now = Date.now();
     let minTimeUntilCheck = monitors.length > 0 ? 86400000 : 60000;
     const enriched = monitors.map(m => {
-        const history = db.prepare('SELECT status, latency, timestamp FROM heartbeats WHERE monitor_id = ? ORDER BY id DESC LIMIT 50').all(m.id).reverse();
-        const upCount = history.filter(h => h.status === 'up').length;
-        const totalCount = history.length || 1;
+        const fullHistory = db.prepare('SELECT status, latency, timestamp FROM heartbeats WHERE monitor_id = ? ORDER BY id DESC LIMIT 1440').all(m.id).reverse();
+        const upCount = fullHistory.filter(h => h.status === 'up').length;
+        const totalCount = fullHistory.length || 1;
         const uptime = Math.round((upCount / totalCount) * 100);
         totalUptimeScore += uptime;
+        const history = fullHistory.slice(-50);
         if (m.status === 'up') onlineCount++;
         if (m.status === 'down') globalStatus = 'degraded';
         totalLatency += m.response_time || 0;
@@ -85,7 +86,7 @@ publicApp.get('/', (req, res) => {
     res.render('index', {
         monitors: enriched,
         settings,
-        stats: { active: monitors.length, online: onlineCount, avgLatency, status: globalStatus, uptime: avgUptime }, 
+        stats: { active: monitors.length, online: onlineCount, avgLatency, status: globalStatus, uptime: avgUptime },
         nextUpdateSeconds
     });
 });
