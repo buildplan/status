@@ -1,5 +1,5 @@
 # STAGE 1: Builder
-FROM node:25-alpine AS builder
+FROM node:25.6.1-alpine@sha256:b9b5737eabd423ba73b21fe2e82332c0656d571daf1ebf19b0f89d0dd0d3ca93 AS builder
 
 # Install build tools
 RUN apk add --no-cache python3 make g++
@@ -15,7 +15,7 @@ RUN npm run build:css
 RUN npm prune --omit=dev
 
 # STAGE 2: Runner
-FROM node:25-alpine
+FROM node:25.6.1-alpine@sha256:b9b5737eabd423ba73b21fe2e82332c0656d571daf1ebf19b0f89d0dd0d3ca93
 
 # Install runtime requirements
 RUN apk add --no-cache dumb-init tzdata
