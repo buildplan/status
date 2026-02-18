@@ -45,7 +45,7 @@
                         </span>
                         <div class="flex flex-col text-left">
                             <span class="text-sm font-bold text-white leading-none">All Systems Operational</span>
-                            <span class="text-[10px] text-emerald-400 font-mono mt-1">100% UPTIME TODAY</span>
+                            <span class="text-[10px] text-emerald-400 font-mono mt-1"><%= stats.uptime %>% UPTIME TODAY</span>
                         </div>
                     <% } else if (stats.status === 'degraded') { %>
                         <span class="relative inline-flex rounded-full h-4 w-4 bg-yellow-500 glow-yellow animate-pulse"></span>

@@ -58,6 +58,7 @@ publicApp.get('/', (req, res) => {
     let globalStatus = 'operational';
     let totalLatency = 0;
     let onlineCount = 0;
+    let totalUptimeScore = 0;
     const now = Date.now();
     let minTimeUntilCheck = monitors.length > 0 ? 86400000 : 60000;
     const enriched = monitors.map(m => {
@@ -65,6 +66,7 @@ publicApp.get('/', (req, res) => {
         const upCount = history.filter(h => h.status === 'up').length;
         const totalCount = history.length || 1;
         const uptime = Math.round((upCount / totalCount) * 100);
+        totalUptimeScore += uptime;
         if (m.status === 'up') onlineCount++;
         if (m.status === 'down') globalStatus = 'degraded';
         totalLatency += m.response_time || 0;
@@ -75,6 +77,7 @@ publicApp.get('/', (req, res) => {
         return { ...m, history, uptime };
     });
 
+    const avgUptime = monitors.length > 0 ? Math.round(totalUptimeScore / monitors.length) : 100;
     let nextUpdateSeconds = Math.ceil((minTimeUntilCheck + 3000) / 1000);
     if (nextUpdateSeconds < 5) nextUpdateSeconds = 5;
     const avgLatency = monitors.length > 0 ? Math.round(totalLatency / monitors.length) : 0;
@@ -82,7 +85,7 @@ publicApp.get('/', (req, res) => {
     res.render('index', {
         monitors: enriched,
         settings,
-        stats: { active: monitors.length, online: onlineCount, avgLatency, status: globalStatus },
+        stats: { active: monitors.length, online: onlineCount, avgLatency, status: globalStatus, uptime: avgUptime }, 
         nextUpdateSeconds
     });
 });
