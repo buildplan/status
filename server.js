@@ -65,7 +65,7 @@ publicApp.get('/', (req, res) => {
         const fullHistory = db.prepare('SELECT status, latency, timestamp FROM heartbeats WHERE monitor_id = ? ORDER BY id DESC LIMIT 1440').all(m.id).reverse();
         const upCount = fullHistory.filter(h => h.status === 'up').length;
         const totalCount = fullHistory.length || 1;
-        const uptime = Math.round((upCount / totalCount) * 100);
+        const uptime = parseFloat(((upCount / totalCount) * 100).toFixed(1));
         totalUptimeScore += uptime;
         const history = fullHistory.slice(-50);
         if (m.status === 'up') onlineCount++;
@@ -78,7 +78,7 @@ publicApp.get('/', (req, res) => {
         return { ...m, history, uptime };
     });
 
-    const avgUptime = monitors.length > 0 ? Math.round(totalUptimeScore / monitors.length) : 100;
+    const avgUptime = monitors.length > 0 ? parseFloat((totalUptimeScore / monitors.length).toFixed(1)) : 100;
     let nextUpdateSeconds = Math.ceil((minTimeUntilCheck + 3000) / 1000);
     if (nextUpdateSeconds < 5) nextUpdateSeconds = 5;
     const avgLatency = monitors.length > 0 ? Math.round(totalLatency / monitors.length) : 0;
