@@ -82,13 +82,13 @@
         </div>
     </div>
 
-    <main class="flex-grow max-w-5xl mx-auto px-6 -mt-8 w-full z-10 pb-12">
+    <main class="grow max-w-5xl mx-auto px-6 -mt-8 w-full z-10 pb-12">
         <div id="monitor-container" class="grid grid-cols-1 gap-4 transition-all duration-500">
             
             <% monitors.forEach(m => { %>
                 <div class="glass-card rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-slate-600/50 group relative overflow-hidden h-full">
                     
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br <%= m.status === 'up' ? 'from-emerald-500/5' : 'from-red-500/5' %> to-transparent rounded-bl-full pointer-events-none"></div>
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-linear-to-br <%= m.status === 'up' ? 'from-emerald-500/5' : 'from-red-500/5' %> to-transparent rounded-bl-full pointer-events-none"></div>
 
                     <div class="card-header-flex flex flex-wrap justify-between gap-4 mb-6">
                         
@@ -100,20 +100,20 @@
                                     <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                 <% } %>
                             </div>
-                            <div class="min-w-0 flex-grow">
+                            <div class="min-w-0 grow">
                                 <h3 class="text-lg font-bold text-white flex items-center gap-2 truncate">
                                     <%= m.name %>
                                     <% if (m.uptime === 100) { %>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 shrink-0">100%</span>
+                                        <span class="px-2 py-0.5 rounded-sm text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 shrink-0">100%</span>
                                     <% } else { %>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-yellow-500 border border-slate-700 shrink-0"><%= m.uptime %>%</span>
+                                        <span class="px-2 py-0.5 rounded-sm text-[10px] font-bold bg-slate-800 text-yellow-500 border border-slate-700 shrink-0"><%= m.uptime %>%</span>
                                     <% } %>
                                 </h3>
                                 <a href="<%= m.url %>" target="_blank" class="block text-sm text-slate-500 hover:text-blue-400 transition-colors font-mono truncate"><%= m.url %></a>
                             </div>
                         </div>
 
-                        <div class="card-header-right flex items-center gap-4 z-10 flex-shrink-0 ml-auto">
+                        <div class="card-header-right flex items-center gap-4 z-10 shrink-0 ml-auto">
                             
                             <div class="hidden sm:block w-24 h-10 opacity-40 shrink-0">
                                 <% 
@@ -152,7 +152,7 @@
                     <div class="relative mt-2" onmouseleave="resetStats(<%= m.id %>, '<%= m.response_time %>')">
                         <div class="flex items-end gap-[3px] h-10 w-full">
                             <% m.history.forEach(h => { %>
-                                <div class="flex-1 min-w-[4px] rounded-sm transition-all hover:opacity-100 hover:scale-y-110 hover:bg-white origin-bottom cursor-pointer
+                                <div class="flex-1 min-w-[4px] rounded-xs transition-all hover:opacity-100 hover:scale-y-110 hover:bg-white origin-bottom cursor-pointer
                                     <%= h.status === 'up' ? (h.latency > 500 ? 'bg-yellow-500 opacity-60' : 'bg-emerald-500 opacity-40') : 'bg-red-500 opacity-80' %>"
                                     style="height: <%= h.status === 'down' ? '100%' : Math.max(20, Math.min(100, (h.latency / 2))) + '%' %>;"
                                     onmouseenter="updateStats(<%= m.id %>, '<%= h.latency %>', '<%= new Date(h.timestamp).toLocaleTimeString() %>', '<%= h.status %>')">
@@ -160,7 +160,7 @@
                             <% }) %>
                             
                             <% for(let i=0; i < (50 - m.history.length); i++) { %>
-                                <div class="flex-1 h-1 bg-slate-800 rounded-sm"></div>
+                                <div class="flex-1 h-1 bg-slate-800 rounded-xs"></div>
                             <% } %>
                         </div>
                     </div>
@@ -185,7 +185,7 @@
                             <div class="stats-value text-2xl"><%= stats.active %></div>
                         </div>
                         
-                        <div class="w-full h-px bg-slate-800/50 md:w-px md:h-12 md:bg-gradient-to-b md:from-transparent md:via-slate-700 md:to-transparent"></div>
+                        <div class="w-full h-px bg-slate-800/50 md:w-px md:h-12 md:bg-linear-to-b md:from-transparent md:via-slate-700 md:to-transparent"></div>
 
                         <div class="flex flex-col items-center md:items-start gap-1 min-w-[120px] w-full md:w-auto">
                             <div class="flex items-center gap-2 text-emerald-400 mb-1">
@@ -195,7 +195,7 @@
                             <div class="stats-value text-2xl"><%= stats.online %> <span class="text-sm text-slate-500 font-normal">/ <%= stats.active %></span></div>
                         </div>
 
-                        <div class="w-full h-px bg-slate-800/50 md:w-px md:h-12 md:bg-gradient-to-b md:from-transparent md:via-slate-700 md:to-transparent"></div>
+                        <div class="w-full h-px bg-slate-800/50 md:w-px md:h-12 md:bg-linear-to-b md:from-transparent md:via-slate-700 md:to-transparent"></div>
 
                         <div class="flex flex-col items-center md:items-start gap-1 min-w-[120px] w-full md:w-auto">
                             <div class="flex items-center gap-2 text-blue-400 mb-1">

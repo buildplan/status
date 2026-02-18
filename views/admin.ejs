@@ -12,7 +12,7 @@
     <nav class="glass-header sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
+                <div class="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </div>
                 <h1 class="font-bold text-white tracking-tight text-lg">Status Admin</h1>
@@ -46,7 +46,7 @@
                 <div class="lg:col-span-2 order-2 lg:order-1">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-lg font-bold text-white">Active Monitors</h2>
-                        <span class="px-2 py-1 bg-slate-800 text-slate-400 rounded text-xs font-mono border border-slate-700"><%= monitors.length %> configured</span>
+                        <span class="px-2 py-1 bg-slate-800 text-slate-400 rounded-sm text-xs font-mono border border-slate-700"><%= monitors.length %> configured</span>
                     </div>
 
                     <% if (monitors.length === 0) { %>
@@ -117,13 +117,13 @@
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5 tracking-wider">Service Name</label>
                                 <input type="text" name="name" required placeholder="e.g. Production API" 
-                                    class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600">
+                                    class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5 tracking-wider">URL to Check</label>
                                 <input type="url" name="url" required placeholder="https://" 
-                                    class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600">
+                                    class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600">
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">
@@ -131,7 +131,7 @@
                                     <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5 tracking-wider">Check Interval</label>
                                     <div class="relative">
                                         <input type="number" name="interval" value="60" min="10" required 
-                                            class="w-full bg-[#0f172a] border border-slate-700 rounded-lg pl-3 pr-2 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-all">
+                                            class="w-full bg-[#0f172a] border border-slate-700 rounded-lg pl-3 pr-2 py-2.5 text-sm text-white focus:outline-hidden focus:border-blue-500 transition-all">
                                         <span class="absolute right-3 top-2.5 text-sm text-slate-500 pointer-events-none">sec</span>
                                     </div>
                                 </div>
@@ -139,7 +139,7 @@
                                     <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5 tracking-wider">Threshold</label>
                                     <div class="relative">
                                         <input type="number" name="threshold" value="3" min="1" max="10" required 
-                                            class="w-full bg-[#0f172a] border border-slate-700 rounded-lg pl-3 pr-2 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-all">
+                                            class="w-full bg-[#0f172a] border border-slate-700 rounded-lg pl-3 pr-2 py-2.5 text-sm text-white focus:outline-hidden focus:border-blue-500 transition-all">
                                         <span class="absolute right-3 top-2.5 text-sm text-slate-500 pointer-events-none">x</span>
                                     </div>
                                 </div>
@@ -148,9 +148,9 @@
                             <div class="pt-2 border-t border-slate-800 mt-2">
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider">Alerts (Optional)</label>
                                 <input type="url" name="notification_url" placeholder="URL (Leave blank for global default)" 
-                                    class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white mb-3 focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-600">
+                                    class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white mb-3 focus:outline-hidden focus:border-blue-500 transition-all placeholder:text-slate-600">
                                 <input type="password" name="notification_token" placeholder="Token (Leave blank for global default)" 
-                                    class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-600">
+                                    class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-hidden focus:border-blue-500 transition-all placeholder:text-slate-600">
                             </div>
 
                             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg transition-all mt-2 text-sm shadow-lg shadow-blue-900/20 active:scale-[0.98]">
@@ -181,15 +181,15 @@
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider">Browser Title & Heading</label>
                             <input type="text" name="title" value="<%= settings.title %>" 
-                                class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
+                                class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider">Logo Image URL</label>
                             <div class="flex gap-4">
-                                <div class="flex-grow">
+                                <div class="grow">
                                     <input type="text" name="logo_url" value="<%= settings.logo_url %>" placeholder="https://example.com/logo.png" 
-                                        class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all placeholder:text-slate-600">
+                                        class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all placeholder:text-slate-600">
                                 </div>
                                 <% if(settings.logo_url) { %>
                                     <div class="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
@@ -202,7 +202,7 @@
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider">Footer Copyright Text</label>
                             <input type="text" name="footer_text" value="<%= settings.footer_text %>" 
-                                class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
+                                class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
                         </div>
 
                         <div class="pt-6 mt-6 border-t border-slate-800">
@@ -220,12 +220,12 @@
                                 <div>
                                     <label class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider">Default Webhook URL</label>
                                     <input type="url" name="default_notification_url" value="<%= settings.default_notification_url || '' %>" placeholder="https://ntfy.sh/..." 
-                                        class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600">
+                                        class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider">Default Token (Optional)</label>
                                     <input type="password" name="default_notification_token" value="<%= settings.default_notification_token || '' %>" placeholder="Bearer Token" 
-                                        class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600">
+                                        class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600">
                                 </div>
                             </div>
                         </div>
@@ -249,14 +249,14 @@
                                     </div>
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" name="show_footer_stats" class="sr-only peer" <%= settings.show_footer_stats ? 'checked' : '' %>>
-                                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                     </label>
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider">Extra Footer Info (Optional)</label>
                                     <textarea name="footer_info" rows="3" placeholder="e.g. For billing inquiries, contact billing@example.com" 
-                                        class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-600"><%= settings.footer_info %></textarea>
+                                        class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-hidden focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-600"><%= settings.footer_info %></textarea>
                                 </div>
 
                                 <div>
@@ -268,8 +268,8 @@
                                         links.forEach(link => { 
                                         %>
                                             <div class="flex gap-2">
-                                                <input type="text" name="link_labels[]" value="<%= link.label %>" placeholder="Label (e.g. Terms)" class="flex-1 bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none">
-                                                <input type="url" name="link_urls[]" value="<%= link.url %>" placeholder="URL (https://...)" class="flex-[2] bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none">
+                                                <input type="text" name="link_labels[]" value="<%= link.label %>" placeholder="Label (e.g. Terms)" class="flex-1 bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-hidden">
+                                                <input type="url" name="link_urls[]" value="<%= link.url %>" placeholder="URL (https://...)" class="flex-2 bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-hidden">
                                                 <button type="button" onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                             </div>
                                         <% }) %>
@@ -293,8 +293,8 @@
 
     </main>
 
-    <div id="editModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeEditModal()"></div>
+    <div id="editModal" class="fixed inset-0 z-100 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs transition-opacity" onclick="closeEditModal()"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4 text-center">
                 <div class="relative transform overflow-hidden rounded-2xl bg-[#0f172a] border border-slate-700 text-left shadow-2xl transition-all w-full max-w-lg scale-100">
@@ -308,28 +308,28 @@
                         
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Friendly Name</label>
-                            <input type="text" id="edit_name" name="name" required class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none">
+                            <input type="text" id="edit_name" name="name" required class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-hidden">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Target URL</label>
-                            <input type="url" id="edit_url" name="url" required class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none">
+                            <input type="url" id="edit_url" name="url" required class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-hidden">
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Check Interval (s)</label>
-                                <input type="number" id="edit_interval" name="interval" min="10" required class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none">
+                                <input type="number" id="edit_interval" name="interval" min="10" required class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-hidden">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Failure Threshold (x)</label>
-                                <input type="number" id="edit_threshold" name="threshold" min="1" max="10" required class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none">
+                                <input type="number" id="edit_threshold" name="threshold" min="1" max="10" required class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-hidden">
                             </div>
                         </div>
 
                         <div class="pt-2 border-t border-slate-800">
                             <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Notification Settings</label>
-                            <input type="url" id="edit_notify_url" name="notification_url" placeholder="Webhook URL (Leave empty for default)" class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white mb-3 focus:border-blue-500 focus:outline-none">
-                            <input type="password" id="edit_notify_token" name="notification_token" placeholder="Token (leave empty to keep unchanged)" class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none">
+                            <input type="url" id="edit_notify_url" name="notification_url" placeholder="Webhook URL (Leave empty for default)" class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white mb-3 focus:border-blue-500 focus:outline-hidden">
+                            <input type="password" id="edit_notify_token" name="notification_token" placeholder="Token (leave empty to keep unchanged)" class="w-full bg-[#0b1120] border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-hidden">
                         </div>
 
                         <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
@@ -373,8 +373,8 @@
             const div = document.createElement('div');
             div.className = 'flex gap-2';
             div.innerHTML = `
-                <input type="text" name="link_labels[]" placeholder="Label (e.g. Privacy)" class="flex-1 bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none">
-                <input type="url" name="link_urls[]" placeholder="URL" class="flex-[2] bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none">
+                <input type="text" name="link_labels[]" placeholder="Label (e.g. Privacy)" class="flex-1 bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-hidden">
+                <input type="url" name="link_urls[]" placeholder="URL" class="flex-2 bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-hidden">
                 <button type="button" onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
             `;
             document.getElementById('links-container').appendChild(div);

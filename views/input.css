@@ -1,7 +1,353 @@
-@import "./fonts.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './fonts.css' layer(base);
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: Inter, sans-serif;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility glass {
+  /* --- SHARED GLASS STYLES --- */
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+
+  body.light-mode & {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+}
+
+@utility glass-login {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@utility glass-card {
+  background: linear-gradient(
+    180deg,
+    rgba(30, 41, 59, 0.7) 0%,
+    rgba(15, 23, 42, 0.6) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
+
+  body.light-mode & {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+}
+
+@utility glass-header {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility stats-value {
+  /* --- STATS BAR STYLES --- */
+  @apply text-sm font-bold text-white;
+
+  /* Light Mode Colors for Stats Bar */
+  body.light-mode & {
+    color: #334155;
+  }
+}
+
+@utility stats-label {
+  @apply text-[10px] uppercase font-bold text-slate-500 tracking-wider;
+}
+
+@utility stats-divider {
+  @apply w-px h-8 bg-slate-800 hidden sm:block; /* Slate 700 */
+  body.light-mode & {
+    background-color: #e2e8f0;
+  }
+}
+
+@utility stats-icon-bg {
+  @apply bg-slate-800/50;
+
+  body.light-mode & {
+    background-color: #f1f5f9; /* bg-slate-100 */
+    color: #475569; /* text-slate-600 */
+  }
+}
+
+@utility footer-brand {
+  /* --- FOOTER UTILS --- */
+  @apply flex flex-col items-center text-center lg:items-start lg:text-left;
+}
+
+@utility footer-logo-box {
+  @apply p-3 rounded-2xl bg-slate-800/30 border border-slate-700/50 shadow-inner transition-colors duration-300;
+
+  body.light-mode & {
+    @apply bg-white border-slate-200 shadow-xs;
+  }
+}
+
+@utility hero-bg {
+  background-image: linear-gradient(to bottom, #111827, #0b1120);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  body.light-mode & {
+    background-image: linear-gradient(to bottom, #f1f5f9, #f8fafc);
+    border-bottom: 1px solid #e2e8f0;
+  }
+}
+
+@utility theme-toggle {
+  /* --- UI ELEMENTS --- */
+  color: rgba(255, 255, 255, 0.5);
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  body.light-mode & {
+    color: #64748b;
+  }
+  body.light-mode &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #0f172a;
+  }
+}
+
+@utility tab-btn {
+  @apply text-slate-500 border-b-2 border-transparent;
+  &:hover {
+    @apply text-slate-400;
+  }
+  &.active {
+    @apply text-white border-blue-500;
+  }
+}
+
+@utility active {
+  &.tab-btn {
+    @apply text-white border-blue-500;
+  }
+}
+
+@utility glow-green {
+  /* --- GLOW EFFECTS --- */
+  box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.4);
+}
+
+@utility glow-red {
+  box-shadow: 0 0 15px -3px rgba(239, 68, 68, 0.4);
+}
+
+@utility glow-yellow {
+  box-shadow: 0 0 15px -3px rgba(234, 179, 8, 0.4);
+}
+
+@utility stat-transition {
+  transition: all 0.15s ease-out;
+}
+
+@utility layout-grid {
+  /* --- LAYOUT MODES (Grid vs List) --- */
+  & .card-header-flex {
+    @apply flex-col items-start gap-4;
+  }
+  & .card-header-right {
+    @apply w-full justify-between ml-0 pt-2 border-t border-white/5;
+  }
+
+  body.light-mode & .card-header-right {
+    border-top: 1px solid #e2e8f0;
+  }
+}
+
+@utility card-header-flex {
+  /* --- LAYOUT MODES (Grid vs List) --- */
+  .layout-grid & {
+    @apply flex-col items-start gap-4;
+  }
+
+  @media (min-width: 640px) {
+    @apply flex-row items-center;
+  }
+}
+
+@utility card-header-right {
+  .layout-grid & {
+    @apply w-full justify-between ml-0 pt-2 border-t border-white/5;
+  }
+
+  body.light-mode .layout-grid & {
+    border-top: 1px solid #e2e8f0;
+  }
+}
+
+@utility light-mode {
+  /* --- LIGHT MODE OVERRIDES --- */
+  &body {
+    @apply bg-slate-50 text-slate-700;
+  }
+
+  &body .glass {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  &body .glass-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  &body .hero-bg {
+    background-image: linear-gradient(to bottom, #f1f5f9, #f8fafc);
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  &body .stats-icon-bg {
+    background-color: #f1f5f9; /* bg-slate-100 */
+    color: #475569; /* text-slate-600 */
+  }
+
+  &body .footer-logo-box {
+    @apply bg-white border-slate-200 shadow-xs;
+  }
+
+  &body .theme-toggle {
+    color: #64748b;
+  }
+  &body .theme-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #0f172a;
+  }
+
+  /* Text Color Swaps (Dark Mode -> Light Mode) */
+  &body .text-white {
+    color: #0f172a !important;
+  } /* Dark Blue */
+  &body .text-slate-300 {
+    color: #475569 !important;
+  } /* Slate 600 */
+  &body .text-slate-400 {
+    color: #64748b !important;
+  } /* Slate 500 */
+  &body .text-slate-500 {
+    color: #94a3b8 !important;
+  } /* Slate 400 */
+  &body .text-emerald-400 {
+    color: #059669 !important;
+  } /* Emerald 600 */
+  &body .text-blue-400 {
+    color: #2563eb !important;
+  } /* Blue 600 */
+
+  &body .bg-slate-800 {
+    background-color: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+    color: #64748b !important;
+  }
+
+  &body .layout-grid .card-header-right {
+    border-top: 1px solid #e2e8f0;
+  }
+
+  /* Light Mode Colors for Stats Bar */
+  &body .stats-value {
+    color: #334155;
+  } /* Slate 700 */
+  &body .stats-divider {
+    background-color: #e2e8f0;
+  } /* Slate 200 */
+
+  &body .stats-bar-bg {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
+@utility text-white {
+  /* Text Color Swaps (Dark Mode -> Light Mode) */
+  body.light-mode & {
+    color: #0f172a !important;
+  }
+}
+
+@utility text-slate-300 {
+  /* Dark Blue */
+  body.light-mode & {
+    color: #475569 !important;
+  }
+}
+
+@utility text-slate-400 {
+  /* Slate 600 */
+  body.light-mode & {
+    color: #64748b !important;
+  }
+}
+
+@utility text-slate-500 {
+  /* Slate 500 */
+  body.light-mode & {
+    color: #94a3b8 !important;
+  }
+}
+
+@utility text-emerald-400 {
+  /* Slate 400 */
+  body.light-mode & {
+    color: #059669 !important;
+  }
+}
+
+@utility text-blue-400 {
+  /* Emerald 600 */
+  body.light-mode & {
+    color: #2563eb !important;
+  }
+}
+
+@utility bg-slate-800 {
+  /* Blue 600 */
+
+  body.light-mode & {
+    background-color: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+    color: #64748b !important;
+  }
+}
+
+@utility stats-bar-bg {
+  /* Slate 200 */
+
+  body.light-mode & {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+}
 
 @layer base {
   body {
@@ -11,77 +357,6 @@
 }
 
 @layer components {
-  /* --- SHARED GLASS STYLES --- */
-  .glass {
-    background: rgba(30, 41, 59, 0.4);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .glass-login {
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .glass-card {
-    background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.6) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
-  }
-
-  .glass-header {
-    background: rgba(15, 23, 42, 0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  /* --- STATS BAR STYLES --- */
-  .stats-value { @apply text-sm font-bold text-white; }
-  .stats-label { @apply text-[10px] uppercase font-bold text-slate-500 tracking-wider; }
-  .stats-divider { @apply w-px h-8 bg-slate-800 hidden sm:block; }
-  .stats-icon-bg { @apply bg-slate-800/50; }
-
-  /* --- FOOTER UTILS --- */
-  .footer-brand { @apply flex flex-col items-center text-center lg:items-start lg:text-left; }
-
-  .footer-logo-box {
-    @apply p-3 rounded-2xl bg-slate-800/30 border border-slate-700/50 shadow-inner transition-colors duration-300;
-  }
-
-  .hero-bg {
-    background-image: linear-gradient(to bottom, #111827, #0b1120);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  /* --- UI ELEMENTS --- */
-  .theme-toggle { color: rgba(255, 255, 255, 0.5); }
-  .theme-toggle:hover { background-color: rgba(255, 255, 255, 0.1); color: #ffffff; }
-
-  .tab-btn { @apply text-slate-500 border-b-2 border-transparent; }
-  .tab-btn:hover { @apply text-slate-400; }
-  .tab-btn.active { @apply text-white border-blue-500; }
-
-  /* --- GLOW EFFECTS --- */
-  .glow-green { box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.4); }
-  .glow-red { box-shadow: 0 0 15px -3px rgba(239, 68, 68, 0.4); }
-  .glow-yellow { box-shadow: 0 0 15px -3px rgba(234, 179, 8, 0.4); }
-  
-  .stat-transition { transition: all 0.15s ease-out; }
-
-  /* --- LAYOUT MODES (Grid vs List) --- */
-  .layout-grid .card-header-flex {
-    @apply flex-col items-start gap-4;
-  }
-  .layout-grid .card-header-right {
-    @apply w-full justify-between ml-0 pt-2 border-t border-white/5;
-  }
-
-  @media (min-width: 640px) {
-    .card-header-flex {
-      @apply flex-row items-center;
-    }
-  }
 
   /* --- CUSTOM SCROLLBAR --- */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -93,65 +368,5 @@
   input[type=number]::-webkit-inner-spin-button, 
   input[type=number]::-webkit-outer-spin-button { 
     -webkit-appearance: none; margin: 0; 
-  }
-}
-
-@layer utilities {
-  /* --- LIGHT MODE OVERRIDES --- */  
-  body.light-mode { @apply bg-slate-50 text-slate-700; }
-
-  body.light-mode .glass {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  }
-
-  body.light-mode .glass-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  }
-
-  body.light-mode .hero-bg {
-    background-image: linear-gradient(to bottom, #f1f5f9, #f8fafc);
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  body.light-mode .stats-icon-bg { 
-    background-color: #f1f5f9; /* bg-slate-100 */
-    color: #475569; /* text-slate-600 */
-  }
-
-  body.light-mode .footer-logo-box {
-    @apply bg-white border-slate-200 shadow-sm;
-  }
-
-  body.light-mode .theme-toggle { color: #64748b; }
-  body.light-mode .theme-toggle:hover { background-color: rgba(0,0,0,0.05); color: #0f172a; }
-
-  /* Text Color Swaps (Dark Mode -> Light Mode) */
-  body.light-mode .text-white { color: #0f172a !important; }      /* Dark Blue */
-  body.light-mode .text-slate-300 { color: #475569 !important; }  /* Slate 600 */
-  body.light-mode .text-slate-400 { color: #64748b !important; }  /* Slate 500 */
-  body.light-mode .text-slate-500 { color: #94a3b8 !important; }  /* Slate 400 */
-  body.light-mode .text-emerald-400 { color: #059669 !important; } /* Emerald 600 */
-  body.light-mode .text-blue-400 { color: #2563eb !important; }    /* Blue 600 */
-
-  body.light-mode .bg-slate-800 { 
-    background-color: #f1f5f9 !important; 
-    border-color: #e2e8f0 !important; 
-    color: #64748b !important; 
-  }
-
-  body.light-mode .layout-grid .card-header-right { border-top: 1px solid #e2e8f0; }
-
-  /* Light Mode Colors for Stats Bar */
-  body.light-mode .stats-value { color: #334155; } /* Slate 700 */
-  body.light-mode .stats-divider { background-color: #e2e8f0; } /* Slate 200 */
-
-  body.light-mode .stats-bar-bg { 
-    background-color: #ffffff; 
-    border-color: #e2e8f0; 
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); 
   }
 }
