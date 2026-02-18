@@ -1,6 +1,9 @@
 # Ignore Git
 .git
+.github
 .gitignore
+
+*.md
 
 node_modules
 renovate.json
@@ -14,6 +17,7 @@ renovate.json
 # Ignore Docker meta-files
 Dockerfile
 docker-compose-*.yml
+docker-compose.yml
 .dockerignore
 
 # Ignore Secrets

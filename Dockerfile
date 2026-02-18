@@ -6,45 +6,40 @@ RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Install dependencies
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN cp node_modules/sortablejs/Sortable.min.js public/Sortable.min.js
 RUN npm run build:css
-RUN npm prune --omit=dev
+RUN npm prune --omit=dev && npm cache clean --force
 
 # STAGE 2: Runner
 FROM node:25.6.1-alpine@sha256:b9b5737eabd423ba73b21fe2e82332c0656d571daf1ebf19b0f89d0dd0d3ca93
 
-# Install runtime requirements
-RUN apk add --no-cache dumb-init tzdata
-
+# Setup Environment
 ENV NODE_ENV=production
 WORKDIR /app
-
-# Setup non-root user
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 
-RUN deluser --remove-home node \
+RUN apk add --no-cache dumb-init tzdata \
+    && deluser --remove-home node \
     && addgroup -g $GROUP_ID node \
-    && adduser -u $USER_ID -G node -s /bin/sh -D node
-
-# Setup data directory with permissions
-RUN mkdir -p /app/data && chown -R node:node /app
+    && adduser -u $USER_ID -G node -s /sbin/nologin -D node \
+    && mkdir -p /app/data \
+    && chown -R node:node /app \
+    && rm -rf /sbin/apk /etc/apk /lib/apk /usr/share/apk /var/cache/apk
 
 # Switch to non-root user
 USER node
 
-# Copy built node_modules from builder stage
+# Copy only necessary artifacts from builder
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
-
-# Copy application source files
-COPY --chown=node:node package.json server.js ./
+COPY --from=builder --chown=node:node /app/public ./public
 COPY --chown=node:node src ./src
 COPY --chown=node:node views ./views
-COPY --from=builder --chown=node:node /app/public ./public
+COPY --chown=node:node package.json server.js ./
 
 # Expose ports (3000 = Public, 3001 = Admin)
 EXPOSE 3000 3001
