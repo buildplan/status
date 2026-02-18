@@ -2,7 +2,7 @@ import express from 'express';
 import { rateLimit } from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getIronSession } from 'iron-session';
+import session from 'express-session';
 import db from './src/db.js';
 import { startMonitoring } from './src/monitor.js';
 
@@ -12,16 +12,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const COOKIE_PASSWORD = process.env.SESSION_SECRET || 'complex_password_at_least_32_characters_long';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
 const PUBLIC_URL = process.env.PUBLIC_URL;
-
-const sessionConfig = {
-    password: COOKIE_PASSWORD,
-    cookieName: 'wiredalter_status_session',
-    ttl: 60 * 60 * 24, // 24 hours
-    cookieOptions: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-    }
-};
 
 // APP 1: PUBLIC INTERFACE (Port 3000)
 const publicApp = express();
@@ -103,25 +93,18 @@ adminApp.set('view engine', 'ejs');
 adminApp.set('views', path.join(__dirname, 'views'));
 adminApp.use(express.static('public'));
 
-
 // Admin Session Middleware
-adminApp.use(async (req, res, next) => {
-    try {
-        const isTunnel = req.headers.host?.includes('localhost') || req.headers.host?.includes('127.0.0.1');
-        const dynamicConfig = {
-            ...sessionConfig,
-            cookieOptions: {
-                ...sessionConfig.cookieOptions,
-                secure: process.env.NODE_ENV === 'production' && !isTunnel
-            }
-        };
-        req.session = await getIronSession(req, res, dynamicConfig);
-        next();
-    } catch (err) {
-        console.error("Session Error:", err);
-        next(err);
+adminApp.use(session({
+    name: 'wiredalter_status_session',
+    secret: COOKIE_PASSWORD,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: 'auto',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
-});
+}));
 
 // Admin Routes
 adminApp.get('/', (req, res) => res.redirect('/admin'));
@@ -135,19 +118,25 @@ adminApp.get('/admin', (req, res) => {
 
 adminApp.get('/login', (req, res) => res.render('login', { publicUrl: PUBLIC_URL || 'http://localhost:3000' }));
 
-adminApp.post('/login', async (req, res) => {
+adminApp.post('/login', (req, res) => {
     if (req.body.password === ADMIN_PASSWORD) {
-        req.session.authenticated = true;
-        await req.session.save();
-        res.redirect('/admin');
+        req.session.regenerate((err) => {
+            if (err) console.error(err);
+            req.session.authenticated = true;
+            req.session.save((err) => {
+                if (err) console.error(err);
+                res.redirect('/admin');
+            });
+        });
     } else {
         res.redirect('/login?error=1');
     }
 });
 
-adminApp.get('/logout', async (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+adminApp.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
 });
 
 // API Routes
@@ -185,11 +174,11 @@ adminApp.post('/api/monitors/edit/:id', (req, res) => {
 
 // API: Update Settings
 adminApp.post('/api/settings', (req, res) => {
-    if (!req.session.authenticated) return res.status(401).send();    
-    const { 
-        title, logo_url, footer_text, 
+    if (!req.session.authenticated) return res.status(401).send();
+    const {
+        title, logo_url, footer_text,
         default_notification_url, default_notification_token,
-        footer_info, show_footer_stats, link_labels, link_urls 
+        footer_info, show_footer_stats, link_labels, link_urls
     } = req.body;
     let footerLinks = [];
     if (link_labels && link_urls) {
@@ -200,12 +189,12 @@ adminApp.post('/api/settings', (req, res) => {
     const statsFlag = show_footer_stats === 'on' ? 1 : 0;
     db.prepare(`
         UPDATE settings
-        SET title = ?, logo_url = ?, footer_text = ?, 
+        SET title = ?, logo_url = ?, footer_text = ?,
             default_notification_url = ?, default_notification_token = ?,
             footer_info = ?, show_footer_stats = ?, footer_links = ?
         WHERE id = 1
     `).run(
-        title, logo_url, footer_text, 
+        title, logo_url, footer_text,
         default_notification_url, default_notification_token,
         footer_info || '', statsFlag, JSON.stringify(footerLinks)
     );
