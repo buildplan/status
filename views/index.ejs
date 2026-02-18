@@ -77,8 +77,8 @@
                     <span class="text-2xl font-bold text-blue-400 mt-1"><%= stats.avgLatency %> <span class="text-sm text-slate-500">ms</span></span>
                 </div>
                 <div class="glass rounded-xl p-4 flex flex-col transition-all duration-300">
-                    <span class="text-xs font-bold uppercase text-slate-500 tracking-wider">Next Update</span>
-                    <span class="text-2xl font-bold text-slate-300 mt-1" id="timer">60s</span>
+                    <span class="text-xs font-bold uppercase text-slate-500 tracking-wider">Auto Refresh In</span>
+                    <span class="text-2xl font-bold text-slate-300 mt-1" id="timer"><%= nextUpdateSeconds %>s</span>
                 </div>
             </div>
         </div>
@@ -312,14 +312,17 @@
             valEl.innerText = currentLatency + 'ms';
             valEl.style.color = ''; 
             labelEl.innerText = 'CURRENT LATENCY';
-            labelEl.style.color = ''; 
+            labelEl.style.color = '';
         }
 
-        let timeLeft = 60;
+        let timeLeft = <%= nextUpdateSeconds %>;
         const timerEl = document.getElementById('timer');
         setInterval(() => {
             timeLeft--;
-            if (timeLeft <= 0) { timeLeft = 0; window.location.reload(); }
+            if (timeLeft <= 0) {
+                timeLeft = 0;
+                window.location.reload();
+            }
             timerEl.innerText = timeLeft + 's';
         }, 1000);
     </script>

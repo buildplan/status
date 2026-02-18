@@ -58,6 +58,8 @@ publicApp.get('/', (req, res) => {
     let globalStatus = 'operational';
     let totalLatency = 0;
     let onlineCount = 0;
+    const now = Date.now();
+    let minTimeUntilCheck = monitors.length > 0 ? 86400000 : 60000;
     const enriched = monitors.map(m => {
         const history = db.prepare('SELECT status, latency, timestamp FROM heartbeats WHERE monitor_id = ? ORDER BY id DESC LIMIT 50').all(m.id).reverse();
         const upCount = history.filter(h => h.status === 'up').length;
@@ -66,14 +68,22 @@ publicApp.get('/', (req, res) => {
         if (m.status === 'up') onlineCount++;
         if (m.status === 'down') globalStatus = 'degraded';
         totalLatency += m.response_time || 0;
+        const lastChecked = m.last_checked ? new Date(m.last_checked + 'Z').getTime() : 0;
+        const nextCheck = lastChecked + (m.interval * 1000);
+        const diff = nextCheck - now;
+        if (diff < minTimeUntilCheck) minTimeUntilCheck = diff;
         return { ...m, history, uptime };
     });
+
+    let nextUpdateSeconds = Math.ceil((minTimeUntilCheck + 3000) / 1000);
+    if (nextUpdateSeconds < 5) nextUpdateSeconds = 5;
     const avgLatency = monitors.length > 0 ? Math.round(totalLatency / monitors.length) : 0;
     if ((onlineCount / monitors.length) < 0.8 && monitors.length > 0) globalStatus = 'outage';
     res.render('index', {
         monitors: enriched,
         settings,
-        stats: { active: monitors.length, online: onlineCount, avgLatency, status: globalStatus }
+        stats: { active: monitors.length, online: onlineCount, avgLatency, status: globalStatus },
+        nextUpdateSeconds
     });
 });
 
