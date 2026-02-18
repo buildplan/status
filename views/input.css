@@ -99,12 +99,14 @@
   @apply flex flex-col items-center text-center lg:items-start lg:text-left;
 }
 
+@utility header-logo-box {
+  @apply p-2 rounded-2xl bg-slate-800/50 border border-white/5 shadow-lg shrink-0 transition-colors duration-300;
+  body.light-mode & { @apply bg-white border-slate-200 shadow-md; }
+}
+
 @utility footer-logo-box {
   @apply p-3 rounded-2xl bg-slate-800/30 border border-slate-700/50 shadow-inner transition-colors duration-300;
-
-  body.light-mode & {
-    @apply bg-white border-slate-200 shadow-xs;
-  }
+  body.light-mode & { @apply bg-white border-slate-200 shadow-xs; }
 }
 
 @utility hero-bg {
