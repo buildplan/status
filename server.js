@@ -136,7 +136,7 @@ adminApp.get('/admin', (req, res) => {
 
 adminApp.get('/login', (req, res) => res.render('login', { publicUrl: PUBLIC_URL || 'http://localhost:3000' }));
 
-adminApp.post('/login', (req, res) => {
+adminApp.post('/login', csrfSynchronisedProtection, (req, res) => {
     if (req.body.password === ADMIN_PASSWORD) {
         req.session.regenerate((err) => {
             if (err) console.error(err);
@@ -158,7 +158,7 @@ adminApp.get('/logout', (req, res) => {
 });
 
 // API Routes
-adminApp.post('/api/monitors', (req, res) => {
+adminApp.post('/api/monitors', csrfSynchronisedProtection, (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     const { name, url, notification_url, notification_token, interval, threshold } = req.body;
     db.prepare(`
@@ -168,13 +168,13 @@ adminApp.post('/api/monitors', (req, res) => {
     res.redirect('/admin');
 });
 
-adminApp.post('/api/monitors/delete/:id', (req, res) => {
+adminApp.post('/api/monitors/delete/:id', csrfSynchronisedProtection, (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     db.prepare('DELETE FROM monitors WHERE id = ?').run(req.params.id);
     res.redirect('/admin');
 });
 
-adminApp.post('/api/monitors/edit/:id', (req, res) => {
+adminApp.post('/api/monitors/edit/:id', csrfSynchronisedProtection, (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     const { name, url, interval, notification_url, notification_token, threshold } = req.body;
     try {
@@ -191,7 +191,7 @@ adminApp.post('/api/monitors/edit/:id', (req, res) => {
 });
 
 // API: Update Settings
-adminApp.post('/api/settings', (req, res) => {
+adminApp.post('/api/settings', csrfSynchronisedProtection, (req, res) => {
     if (!req.session.authenticated) return res.status(401).send();
     const {
         title, logo_url, footer_text,
