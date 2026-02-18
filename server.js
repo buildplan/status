@@ -104,6 +104,7 @@ const adminLimiter = rateLimit({
 
 adminApp.use(adminLimiter);
 adminApp.use(express.urlencoded({ extended: true }));
+adminApp.use(express.json());
 adminApp.set('view engine', 'ejs');
 adminApp.set('views', path.join(__dirname, 'views'));
 adminApp.use(express.static('public'));
@@ -143,7 +144,7 @@ adminApp.get('/', (req, res) => res.redirect('/admin'));
 
 adminApp.get('/admin', (req, res) => {
     if (!req.session.authenticated) return res.redirect('/login');
-    const monitors = db.prepare('SELECT * FROM monitors').all();
+    const monitors = db.prepare('SELECT * FROM monitors ORDER BY position ASC, id ASC').all();
     const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
     res.render('admin', { monitors, settings, publicUrl: PUBLIC_URL || 'http://localhost:3000' });
 });
