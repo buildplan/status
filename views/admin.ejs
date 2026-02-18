@@ -6,6 +6,7 @@
     <title>Status Admin</title>
     <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%233b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>'>
     <link href="/style.css" rel="stylesheet">
+    <script src="/Sortable.min.js"></script>
 </head>
 
 <body class="text-slate-300 min-h-screen flex flex-col">
@@ -59,10 +60,13 @@
                             <p class="text-slate-500 text-sm mt-1">Add your first service using the panel on the right.</p>
                         </div>
                     <% } else { %>
-                        <div class="space-y-3">
+                        <div id="monitor-list" class="space-y-3">
                             <% monitors.forEach(m => { %>
-                                <div class="glass rounded-lg p-4 flex items-center justify-between group hover:bg-slate-800/40 transition-colors border border-transparent hover:border-slate-700">
-                                    <div class="flex items-center gap-4 overflow-hidden">
+                                <div data-id="<%= m.id %>" class="glass rounded-lg p-4 flex items-center justify-between group hover:bg-slate-800/40 transition-colors border border-transparent hover:border-slate-700">
+                                    <div class="cursor-move text-slate-600 hover:text-slate-400 p-2 mr-2 drag-handle shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                                    </div>
+                                    <div class="flex items-center gap-4 overflow-hidden grow">
                                         <div class="w-10 h-10 rounded-lg bg-[#0f172a] border border-slate-700 flex items-center justify-center shrink-0">
                                             <% if (m.status === 'up') { %>
                                                 <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
@@ -80,7 +84,6 @@
                                                 <span><%= m.interval %>s</span>
                                                 <span class="text-slate-700">|</span>
                                                 <span title="Failure Threshold"><%= m.threshold || 3 %> tries</span>
-                                                
                                                 <% if (m.notification_url) { %>
                                                     <span class="text-slate-700">|</span>
                                                     <span class="text-blue-400 flex items-center gap-1">
@@ -387,6 +390,33 @@
         function closeEditModal() {
             document.getElementById('editModal').classList.add('hidden');
         }
+
+        // DRAG AND DROP LOGIC
+        const list = document.getElementById('monitor-list');
+        if (list) {
+            Sortable.create(list, {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'opacity-50',
+                onEnd: function (evt) {
+                    const order = Array.from(list.children).map(item => item.getAttribute('data-id'));
+                    fetch('/api/monitors/reorder', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'CSRF-Token': '<%= _csrf %>'
+                        },
+                        body: JSON.stringify({ 
+                            order: order,
+                            _csrf: '<%= _csrf %>'
+                        })
+                    }).then(res => {
+                        if (!res.ok) console.error('Failed to save order');
+                    });
+                }
+            });
+        }
+
     </script>
 
 </body>

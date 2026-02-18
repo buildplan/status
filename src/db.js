@@ -109,6 +109,12 @@ try {
         db.prepare("ALTER TABLE settings ADD COLUMN footer_links TEXT DEFAULT '[]'").run();
         db.prepare("ALTER TABLE settings ADD COLUMN footer_info TEXT DEFAULT ''").run();
         db.prepare("ALTER TABLE settings ADD COLUMN show_footer_stats INTEGER DEFAULT 0").run();
+    }    
+    // 6. Add Position Column for Reordering
+    if (!monitorCols.some(c => c.name === 'position')) {
+        console.log("⚙️ Migrating DB: Adding position column...");
+        db.prepare("ALTER TABLE monitors ADD COLUMN position INTEGER DEFAULT 0").run();        
+        db.prepare("UPDATE monitors SET position = id").run();
     }
 } catch (e) {
     console.error("Migration warning:", e.message);

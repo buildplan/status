@@ -48,7 +48,7 @@ publicApp.use(publicLimiter);
 
 // Public Status Page
 publicApp.get('/', (req, res) => {
-    const monitors = db.prepare('SELECT * FROM monitors').all();
+    const monitors = db.prepare('SELECT * FROM monitors ORDER BY position ASC, id ASC').all();
     const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
     try {
         settings.footer_links = JSON.parse(settings.footer_links || '[]');
@@ -169,6 +169,25 @@ adminApp.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/');
     });
+});
+
+// API: Reorder Monitors
+adminApp.post('/api/monitors/reorder', csrfSynchronisedProtection, (req, res) => {
+    if (!req.session.authenticated) return res.status(401).send();
+    const { order } = req.body;
+    if (Array.isArray(order)) {
+        const updateStmt = db.prepare('UPDATE monitors SET position = ? WHERE id = ?');
+        const transaction = db.transaction((ids) => {
+            ids.forEach((id, index) => { updateStmt.run(index, id); });
+        });
+        try {
+            transaction(order);
+            res.json({ success: true });
+        } catch (err) {
+            console.error("Reorder failed:", err);
+            res.status(500).json({ success: false });
+        }
+    } else { res.status(400).json({ error: "Invalid data" }); }
 });
 
 // API Routes
