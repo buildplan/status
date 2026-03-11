@@ -6,6 +6,10 @@
   "rangeStrategy": "bump",
   "packageRules": [
     {
+      "matchUpdateTypes": ["pin", "digest", "pinDigest"],
+      "enabled": false
+    },
+    {
       "description": "Wait 12 hours after dependency update is found.",
       "matchDatasources": ["docker"],
       "minimumReleaseAge": "12 hours"
