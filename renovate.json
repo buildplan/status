@@ -1,13 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:best-practices"],
+  "ignorePresets": ["docker:pinDigests"],
   "pinDigests": false,
   "rangeStrategy": "bump",
   "packageRules": [
-    {
-      "matchUpdateTypes": ["pin", "digest", "pinDigest"],
-      "enabled": false
-    },
     {
       "description": "Automerge non-major updates",
       "matchUpdateTypes": ["minor", "patch"],
