@@ -15,6 +15,7 @@ const db = new Database(path.join(dataDir, 'monitor.db'), {
     verbose: process.env.DB_VERBOSE === 'true' ? console.log : null
 });
 db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
 
 // Monitors Table
 db.exec(`
@@ -46,14 +47,19 @@ db.exec(`
     )
 `);
 
-// Auto-cleanup trigger
-db.exec(`
-    CREATE TRIGGER IF NOT EXISTS clean_old_heartbeats
-    AFTER INSERT ON heartbeats
-    BEGIN
-        DELETE FROM heartbeats WHERE timestamp < datetime('now', '-30 days');
-    END;
-`);
+// Auto-cleanup
+const cleanOldHeartbeats = () => {
+    try {
+        const info = db.prepare("DELETE FROM heartbeats WHERE timestamp < datetime('now', '-30 days')").run();
+        if (info.changes > 0) {
+            console.log(`🧹 Database cleanup: Removed ${info.changes} old heartbeats.`);
+        }
+    } catch (e) {
+        console.error("❌ Failed to clean old heartbeats:", e.message);
+    }
+};
+cleanOldHeartbeats();
+setInterval(cleanOldHeartbeats, 1000 * 60 * 60 * 24); // run every 24 hours
 
 // Settings Table
 db.exec(`
@@ -109,11 +115,11 @@ try {
         db.prepare("ALTER TABLE settings ADD COLUMN footer_links TEXT DEFAULT '[]'").run();
         db.prepare("ALTER TABLE settings ADD COLUMN footer_info TEXT DEFAULT ''").run();
         db.prepare("ALTER TABLE settings ADD COLUMN show_footer_stats INTEGER DEFAULT 0").run();
-    }    
+    }
     // 6. Add Position Column for Reordering
     if (!monitorCols.some(c => c.name === 'position')) {
         console.log("⚙️ Migrating DB: Adding position column...");
-        db.prepare("ALTER TABLE monitors ADD COLUMN position INTEGER DEFAULT 0").run();        
+        db.prepare("ALTER TABLE monitors ADD COLUMN position INTEGER DEFAULT 0").run();
         db.prepare("UPDATE monitors SET position = id").run();
     }
 } catch (e) {
