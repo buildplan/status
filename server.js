@@ -8,6 +8,7 @@ import { csrfSync } from 'csrf-sync';
 import db from './src/db.js';
 import { startMonitoring } from './src/monitor.js';
 
+const SqliteStore = sqliteStoreFactory(session);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // --- CONFIGURATION ---
