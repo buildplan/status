@@ -3,6 +3,7 @@ import { rateLimit } from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import session from 'express-session';
+import sqliteStoreFactory from 'better-sqlite3-session-store';
 import { csrfSync } from 'csrf-sync';
 import db from './src/db.js';
 import { startMonitoring } from './src/monitor.js';
@@ -89,7 +90,7 @@ publicApp.get('/', (req, res) => {
     let nextUpdateSeconds = Math.ceil((minTimeUntilCheck + 3000) / 1000);
     if (nextUpdateSeconds < 5) nextUpdateSeconds = 5;
     const avgLatency = monitors.length > 0 ? Math.round(totalLatency / monitors.length) : 0;
-    if ((onlineCount / monitors.length) < 0.8 && monitors.length > 0) globalStatus = 'outage';    
+    if ((onlineCount / monitors.length) < 0.8 && monitors.length > 0) globalStatus = 'outage';
     publicCache.data = {
         monitors: enriched,
         settings,
@@ -125,6 +126,13 @@ adminApp.use(session({
     secret: COOKIE_PASSWORD,
     resave: false,
     saveUninitialized: false,
+    store: new SqliteStore({
+        client: db,
+        expired: {
+            clear: true,
+            intervalMs: 1000 * 60 * 60 * 24 // Automatically clear expired sessions once a day
+        }
+    }),
     cookie: {
         secure: 'auto',
         httpOnly: true,
