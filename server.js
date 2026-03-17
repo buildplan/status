@@ -45,9 +45,17 @@ publicApp.set('view engine', 'ejs');
 publicApp.set('views', path.join(__dirname, 'views'));
 publicApp.use(express.static('public'));
 publicApp.use(publicLimiter);
+let publicCache = { data: null, lastUpdated: 0 };
+const CACHE_TTL = 10000;
 
 // Public Status Page
 publicApp.get('/', (req, res) => {
+    const now = Date.now();
+    if (publicCache.data && (now - publicCache.lastUpdated < CACHE_TTL)) {
+        const cachedData = { ...publicCache.data };
+        cachedData.nextUpdateSeconds = Math.max(5, Math.ceil((cachedData.targetNextCheck - now) / 1000));
+        return res.render('index', cachedData);
+    }
     const monitors = db.prepare('SELECT * FROM monitors ORDER BY position ASC, id ASC').all();
     const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
     try {
@@ -59,7 +67,6 @@ publicApp.get('/', (req, res) => {
     let totalLatency = 0;
     let onlineCount = 0;
     let totalUptimeScore = 0;
-    const now = Date.now();
     let minTimeUntilCheck = monitors.length > 0 ? 86400000 : 60000;
     const enriched = monitors.map(m => {
         const fullHistory = db.prepare('SELECT status, latency, timestamp FROM heartbeats WHERE monitor_id = ? ORDER BY id DESC LIMIT 1440').all(m.id).reverse();
@@ -82,13 +89,16 @@ publicApp.get('/', (req, res) => {
     let nextUpdateSeconds = Math.ceil((minTimeUntilCheck + 3000) / 1000);
     if (nextUpdateSeconds < 5) nextUpdateSeconds = 5;
     const avgLatency = monitors.length > 0 ? Math.round(totalLatency / monitors.length) : 0;
-    if ((onlineCount / monitors.length) < 0.8 && monitors.length > 0) globalStatus = 'outage';
-    res.render('index', {
+    if ((onlineCount / monitors.length) < 0.8 && monitors.length > 0) globalStatus = 'outage';    
+    publicCache.data = {
         monitors: enriched,
         settings,
         stats: { active: monitors.length, online: onlineCount, avgLatency, status: globalStatus, uptime: avgUptime },
-        nextUpdateSeconds
-    });
+        targetNextCheck: now + minTimeUntilCheck
+    };
+    publicCache.lastUpdated = now;
+    publicCache.data.nextUpdateSeconds = nextUpdateSeconds;
+    res.render('index', publicCache.data);
 });
 
 // APP 2: ADMIN INTERFACE (Port 3001)
