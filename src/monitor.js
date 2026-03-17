@@ -61,7 +61,7 @@ async function sendNotification(monitor, message, status) {
         // --- 4. NTFY (Generic Webhook) ---
         else {
             headers['Title'] = `Service ${status.toUpperCase()}: ${monitor.name}`;
-            headers['Priority'] = status === 'down' ? '5' : '3';
+            headers['Priority'] = status === 'down' ? '4' : '3';
             headers['Tags'] = status === 'down' ? 'rotating_light' : 'white_check_mark';
             delete headers['Content-Type'];
             body = message;
@@ -80,14 +80,14 @@ async function checkService(monitor) {
     let isUp = false;
     let latency = 0;
 
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
+    try {
         const res = await fetch(monitor.url, {
             method: 'GET',
             signal: controller.signal,
-            headers: { 
+            headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.9',
@@ -95,7 +95,6 @@ async function checkService(monitor) {
             }
         });
 
-        clearTimeout(timeoutId);
         latency = Math.round(performance.now() - start);
 
         if (res.ok || (res.status >= 200 && res.status < 400)) {
@@ -104,6 +103,8 @@ async function checkService(monitor) {
     } catch (e) {
         latency = 0;
         isUp = false;
+    } finally {
+        clearTimeout(timeoutId);
     }
 
     // --- FLAPPING PROTECTION LOGIC ---
@@ -136,7 +137,11 @@ async function checkService(monitor) {
             // Mark as down
             db.prepare('UPDATE monitors SET status=?, response_time=0, last_checked=CURRENT_TIMESTAMP, consecutive_fails=? WHERE id=?').run('down', currentFails, monitor.id);
         } else {
-            db.prepare('UPDATE monitors SET consecutive_fails=?, last_checked=CURRENT_TIMESTAMP WHERE id=?').run(currentFails, monitor.id);
+            if (currentFails <= THRESHOLD) {
+                db.prepare('UPDATE monitors SET consecutive_fails=?, last_checked=CURRENT_TIMESTAMP WHERE id=?').run(currentFails, monitor.id);
+            } else {
+                db.prepare('UPDATE monitors SET last_checked=CURRENT_TIMESTAMP WHERE id=?').run(monitor.id);
+            }
         }
     }
 
