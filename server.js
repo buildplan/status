@@ -7,9 +7,6 @@ import SQLiteStore from './src/session-store.js';
 import { csrfSync } from 'csrf-sync';
 import db from './src/db.js';
 import { startMonitoring } from './src/monitor.js';
-import { csrfSync } from 'csrf-sync';
-import db from './src/db.js';
-import { startMonitoring } from './src/monitor.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
