@@ -20,7 +20,7 @@
     "sortablejs": "^1.15.7"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.2.4",
+    "@tailwindcss/cli": "^4.3.0",
     "tailwindcss": "^4.3.0"
   }
 }
