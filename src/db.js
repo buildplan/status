@@ -117,6 +117,10 @@ try {
         db.prepare("ALTER TABLE monitors ADD COLUMN position INTEGER DEFAULT 0").run();
         db.prepare("UPDATE monitors SET position = id").run();
     }
+    if (!monitorCols.some(c => c.name === 'keyword')) {
+        console.log("⚙️ Migrating DB: Adding keyword column to monitors...");
+        db.prepare("ALTER TABLE monitors ADD COLUMN keyword TEXT DEFAULT ''").run();
+    }
 
     // 2. Settings columns
     const settingsCols = db.prepare("PRAGMA table_info(settings)").all();

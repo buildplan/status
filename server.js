@@ -147,11 +147,11 @@ adminApp.post('/api/monitors/reorder', async (c) => {
 });
 
 adminApp.post('/api/monitors', async (c) => {
-    const { name, url, notification_url, notification_token, interval, threshold } = await c.req.json();
+    const { name, url, notification_url, notification_token, interval, threshold, keyword } = await c.req.json();
     db.prepare(`
-        INSERT INTO monitors (name, url, notification_url, notification_token, interval, threshold)
-        VALUES (?, ?, ?, ?, ?, ?)
-    `).run(name, url, notification_url, notification_token, interval || 60, threshold || 3);
+        INSERT INTO monitors (name, url, notification_url, notification_token, interval, threshold, keyword)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(name, url, notification_url, notification_token, interval || 60, threshold || 3, keyword || '');
     return c.json({ success: true });
 });
 
@@ -163,12 +163,12 @@ adminApp.delete('/api/monitors/:id', (c) => {
 
 adminApp.put('/api/monitors/:id', async (c) => {
     const id = c.req.param('id');
-    const { name, url, interval, notification_url, notification_token, threshold } = await c.req.json();
+    const { name, url, interval, notification_url, notification_token, threshold, keyword } = await c.req.json();
     db.prepare(`
         UPDATE monitors
-        SET name = ?, url = ?, interval = ?, notification_url = ?, notification_token = ?, threshold = ?
+        SET name = ?, url = ?, interval = ?, notification_url = ?, notification_token = ?, threshold = ?, keyword = ?
         WHERE id = ?
-    `).run(name, url, interval || 60, notification_url, notification_token, threshold || 3, id);
+    `).run(name, url, interval || 60, notification_url, notification_token, threshold || 3, keyword || '', id);
     return c.json({ success: true });
 });
 

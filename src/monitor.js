@@ -100,6 +100,12 @@ async function checkService(monitor) {
 
         if (res.ok || (res.status >= 200 && res.status < 400)) {
             isUp = true;
+            if (monitor.keyword && monitor.keyword.trim() !== '') {
+                const text = await res.text();
+                if (!text.includes(monitor.keyword.trim())) {
+                    isUp = false; // Keyword not found
+                }
+            }
         }
     } catch (e) {
         latency = 0;

@@ -226,6 +226,7 @@ window.editMonitor = (id) => {
     document.getElementById('mon-id').value = m.id;
     document.getElementById('mon-name').value = m.name;
     document.getElementById('mon-url').value = m.url;
+    document.getElementById('mon-keyword').value = m.keyword || '';
     document.getElementById('mon-interval').value = m.interval;
     document.getElementById('mon-threshold').value = m.threshold || 3;
     document.getElementById('mon-notif-url').value = m.notification_url || '';
@@ -247,6 +248,7 @@ document.getElementById('monitor-form').addEventListener('submit', async (e) => 
     const payload = {
         name: document.getElementById('mon-name').value,
         url: document.getElementById('mon-url').value,
+        keyword: document.getElementById('mon-keyword').value,
         interval: parseInt(document.getElementById('mon-interval').value),
         threshold: parseInt(document.getElementById('mon-threshold').value),
         notification_url: document.getElementById('mon-notif-url').value,
