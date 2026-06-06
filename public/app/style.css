@@ -278,23 +278,47 @@ body {
 .footer { border-top: 1px solid var(--glass-border); padding-top: 3rem; margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
 
 .footer-stats-bar {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(8px);
-    border-radius: 1rem;
-    padding: 1.5rem 2rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
+    gap: 1.5rem;
     width: 100%;
-    max-width: 800px;
 }
-.f-stat { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
-.f-stat-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.8; display: flex; align-items: center; gap: 0.5rem; }
-.f-stat-val { font-size: 1.5rem; font-weight: 700; }
-.f-divider { width: 1px; height: 2rem; background: var(--glass-border); }
+
+.f-stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+.f-stat-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+.f-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+}
+[data-theme="light"] .f-stat-icon { background: rgba(0,0,0,0.05); }
+.f-stat-icon svg { width: 24px; height: 24px; }
+
+.f-stat-text { display: flex; flex-direction: column; text-align: left; }
+.f-stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; }
+.f-stat-val { font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
 
 .footer-content { text-align: center; }
 #footer-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-primary); }

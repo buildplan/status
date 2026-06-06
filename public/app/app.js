@@ -87,8 +87,25 @@ function render(data) {
     // Header & Settings
     if (data.settings.title) {
         document.getElementById('page-title').textContent = data.settings.title;
-        document.getElementById('footer-title').textContent = data.settings.title;
+        const ft = document.getElementById('footer-title');
+        if (ft) ft.textContent = data.settings.title;
         document.title = data.settings.title;
+    }
+    
+    const logoImg = document.getElementById('logo-img');
+    const footerLogo = document.getElementById('footer-logo');
+    if (data.settings.logo_url) {
+        if (logoImg) {
+            logoImg.src = data.settings.logo_url;
+            logoImg.classList.remove('hidden');
+        }
+        if (footerLogo) {
+            footerLogo.src = data.settings.logo_url;
+            footerLogo.classList.remove('hidden');
+        }
+    } else {
+        if (logoImg) logoImg.classList.add('hidden');
+        if (footerLogo) footerLogo.classList.add('hidden');
     }
     
     // Global Status
@@ -119,7 +136,7 @@ function render(data) {
         document.getElementById('footer-stats-bar').classList.remove('hidden');
         document.getElementById('f-stat-monitors').textContent = data.stats.active;
         document.getElementById('f-stat-online').textContent = `${data.stats.online} / ${data.stats.active}`;
-        document.getElementById('f-stat-latency').textContent = `${data.stats.avgLatency}ms`;
+        document.getElementById('f-stat-incidents').textContent = data.incidents ? data.incidents.length : 0;
     } else {
         document.getElementById('footer-stats-bar').classList.add('hidden');
     }
