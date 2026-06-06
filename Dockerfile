@@ -1,5 +1,5 @@
 # STAGE 1: Builder
-FROM node:25.9.0-alpine AS builder
+FROM node:26.3.0-alpine3.23@sha256:144769ec3f32e8ee36b3cfde91e82bee25d9367b20f31a151f3f7eea3a2a8541 AS builder
 
 # Install build tools
 RUN apk add --no-cache python3 make g++
@@ -15,7 +15,7 @@ RUN npm run build:css
 RUN npm prune --omit=dev && npm cache clean --force
 
 # STAGE 2: Runner
-FROM node:25.9.0-alpine
+FROM node:26.3.0-alpine3.23@sha256:144769ec3f32e8ee36b3cfde91e82bee25d9367b20f31a151f3f7eea3a2a8541
 
 # Setup Environment
 ENV NODE_ENV=production
