@@ -1,4 +1,5 @@
 import db from './db.js';
+import { appEvents } from './events.js';
 
 const DISCORD_HOSTS = new Set([
     'discord.com',
@@ -99,6 +100,12 @@ async function checkService(monitor) {
 
         if (res.ok || (res.status >= 200 && res.status < 400)) {
             isUp = true;
+            if (monitor.keyword && monitor.keyword.trim() !== '') {
+                const text = await res.text();
+                if (!text.includes(monitor.keyword.trim())) {
+                    isUp = false; // Keyword not found
+                }
+            }
         }
     } catch (e) {
         latency = 0;
@@ -149,6 +156,8 @@ async function checkService(monitor) {
     db.prepare(`
         INSERT INTO heartbeats (monitor_id, status, latency) VALUES (?, ?, ?)
     `).run(monitor.id, isUp ? 'up' : 'down', latency);
+    
+    appEvents.emit('status_update');
 }
 
 // --- LOOP ---

@@ -7,11 +7,10 @@ RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 # Install dependencies
+# Install dependencies
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN cp node_modules/sortablejs/Sortable.min.js public/Sortable.min.js
-RUN npm run build:css
 RUN npm prune --omit=dev && npm cache clean --force
 
 # STAGE 2: Runner
@@ -38,7 +37,6 @@ USER node
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --chown=node:node src ./src
-COPY --chown=node:node views ./views
 COPY --chown=node:node package.json server.js ./
 
 # Expose ports (3000 = Public, 3001 = Admin)

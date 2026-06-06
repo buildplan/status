@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'/%3E%3Cpath d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'/%3E%3C/svg%3E">
+</head>
+<body>
+    <div id="toast-container"></div>
+    <div id="login-view" class="view">
+        <div class="glass-panel login-box">
+            <h2>Admin Login</h2>
+            <form id="login-form">
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p id="login-error" class="error"></p>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="view hidden">
+        <header class="glass-panel admin-header">
+            <h1>Dashboard</h1>
+            <div class="header-actions">
+                <a id="public-link" href="/" target="_blank" class="text-link">Public Page</a>
+                <button id="logout-btn" class="btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="monitors">Monitors</button>
+            <button class="tab-btn" data-tab="incidents">Incidents</button>
+            <button class="tab-btn" data-tab="analytics">Analytics</button>
+            <button class="tab-btn" data-tab="settings">Settings</button>
+        </div>
+
+        <div id="tab-monitors" class="tab-content active">
+            <div class="glass-panel monitors-panel">
+                <div class="panel-header">
+                    <h2>Monitors</h2>
+                    <button id="add-monitor-btn">Add Monitor</button>
+                </div>
+                <table id="monitors-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>URL</th>
+                            <th>Interval</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monitors-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-incidents" class="tab-content hidden">
+            <div class="glass-panel incidents-panel">
+                <div class="panel-header">
+                    <h2>Incidents</h2>
+                    <button id="add-incident-btn">Report Incident</button>
+                </div>
+                <table id="incidents-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incidents-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-analytics" class="tab-content hidden">
+            <div class="glass-panel analytics-panel">
+                <h2>Downtime Analysis</h2>
+                <div class="stats-grid" id="analytics-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Global Uptime</span>
+                        <span class="stat-value" id="ana-uptime">-</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Total Checks</span>
+                        <span class="stat-value" id="ana-total-checks">-</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Down Checks</span>
+                        <span class="stat-value text-danger" id="ana-down-checks">-</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Avg Latency</span>
+                        <span class="stat-value text-accent" id="ana-avg-latency">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content hidden">
+            <div class="glass-panel settings-panel">
+                <h2>Global Settings</h2>
+                <form id="settings-form">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Site Title</label>
+                            <input type="text" id="set-title">
+                        </div>
+                        <div class="input-group">
+                            <label>Logo URL</label>
+                            <input type="text" id="set-logo">
+                        </div>
+                        <div class="input-group">
+                            <label>Public URL (e.g. https://status.mycom.com)</label>
+                            <input type="text" id="set-public-url" placeholder="http://localhost:3000">
+                        </div>
+                        <div class="input-group">
+                            <label>Footer Text</label>
+                            <input type="text" id="set-footer">
+                        </div>
+                        <div class="input-group">
+                            <label>Footer Info</label>
+                            <textarea id="set-footer-info" rows="2" placeholder="Detailed info..."></textarea>
+                        </div>
+                        <div class="input-group" style="flex-direction:row; align-items:center;">
+                            <input type="checkbox" id="set-show-stats" style="width:auto; margin-right:8px;">
+                            <label style="margin:0;">Show Footer Stats Bar</label>
+                        </div>
+                        <div class="input-group">
+                            <label>History Retention (Days)</label>
+                            <input type="number" id="set-history-days" min="1" max="365">
+                        </div>
+                    </div>
+
+                    <h3 class="section-title" style="margin-top: 1.5rem;">Footer Links</h3>
+                    <div id="footer-links-container"></div>
+                    <button type="button" id="add-link-btn" style="margin-top:0.5rem; padding:0.4rem 0.6rem; font-size:0.8rem; background:var(--glass-border);">+ Add Link</button>
+
+                    <h3 class="section-title">Default Notifications (NTFY, Slack, Discord)</h3>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Global Webhook URL</label>
+                            <input type="text" id="set-webhook-url" placeholder="https://ntfy.sh/mytopic">
+                        </div>
+                        <div class="input-group">
+                            <label>Global Webhook Token</label>
+                            <input type="text" id="set-webhook-token" placeholder="Optional Auth Token">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" style="margin-top: 1.5rem;">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monitor Modal -->
+    <div id="monitor-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h2 id="modal-title">Monitor</h2>
+            <form id="monitor-form">
+                <input type="hidden" id="mon-id">
+                <div class="input-group">
+                    <label>Name</label>
+                    <input type="text" id="mon-name" required>
+                </div>
+                <div class="input-group">
+                    <label>URL (http/https)</label>
+                    <input type="url" id="mon-url" required>
+                </div>
+                <div class="input-group">
+                    <label>Required Keyword (Optional - for CDN/Cloudflare bypass)</label>
+                    <input type="text" id="mon-keyword" placeholder="e.g. 'Welcome to our service'">
+                </div>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Interval (seconds)</label>
+                        <input type="number" id="mon-interval" required min="10">
+                    </div>
+                    <div class="input-group">
+                        <label>Failure Threshold</label>
+                        <input type="number" id="mon-threshold" required min="1">
+                    </div>
+                </div>
+                <h3 class="section-title text-sm mt-2">Custom Webhook (Overrides Global)</h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Webhook URL</label>
+                        <input type="text" id="mon-notif-url" placeholder="Optional">
+                    </div>
+                    <div class="input-group">
+                        <label>Webhook Token</label>
+                        <input type="text" id="mon-notif-token" placeholder="Optional">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="close-modal" data-target="monitor-modal">Cancel</button>
+                    <button type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Incident Modal -->
+    <div id="incident-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h2 id="inc-modal-title">Report Incident</h2>
+            <form id="incident-form">
+                <input type="hidden" id="inc-id">
+                <div class="input-group">
+                    <label>Title</label>
+                    <input type="text" id="inc-title" required placeholder="e.g. Database API degradation">
+                </div>
+                <div class="input-group">
+                    <label>Status</label>
+                    <select id="inc-status" required>
+                        <option value="investigating">Investigating</option>
+                        <option value="identified">Identified</option>
+                        <option value="monitoring">Monitoring</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Description</label>
+                    <textarea id="inc-desc" rows="4" placeholder="Details of the incident..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="close-modal" data-target="incident-modal">Cancel</button>
+                    <button type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

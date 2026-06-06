@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b1120">
+    <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2310b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>'>
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    
+    <div class="toggles">
+        <button id="toggle-layout" class="glass-btn" aria-label="Toggle Layout" title="Switch View">
+            <svg id="icon-grid" class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            <svg id="icon-list" class="icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+        <button id="toggle-theme" class="glass-btn" aria-label="Toggle Theme" title="Switch Theme">
+            <svg id="icon-sun" class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg id="icon-moon" class="icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+    </div>
+
+    <div class="container">
+        <header id="header">
+            <div class="header-top">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <img id="logo-img" class="hidden" src="" alt="Logo" style="height: 48px; max-width: 200px; object-fit: contain;" onerror="this.classList.add('hidden')">
+                    <div>
+                        <h1 id="page-title">System Status</h1>
+                        <p class="subtitle">Live service health & uptime monitoring</p>
+                    </div>
+                </div>
+                <div class="global-status-pill" id="global-status-pill">
+                    <span class="ping-container">
+                        <span class="ping-animate" id="ping-animate"></span>
+                        <span class="ping-dot" id="ping-dot"></span>
+                    </span>
+                    <div class="pill-text">
+                        <span id="status-text" class="status-title">Fetching Status...</span>
+                        <span id="status-subtext" class="status-subtitle">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="stats">
+                <div class="stat-card">
+                    <span class="stat-label">Monitors</span>
+                    <span class="stat-value" id="stat-active">-</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Services Up</span>
+                    <span class="stat-value text-success" id="stat-online">-</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Avg Latency</span>
+                    <span class="stat-value text-accent" id="stat-latency">-</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Updates</span>
+                    <span class="stat-value text-success">Live</span>
+                </div>
+            </div>
+        </header>
+
+        <section id="incidents-container" class="hidden">
+            <h2 class="section-heading">Past Incidents</h2>
+            <div id="incidents-list" class="incidents-list"></div>
+        </section>
+
+        <main id="monitors-list" class="monitors-list">
+            <!-- Monitors will be rendered here -->
+        </main>
+
+        <footer class="footer" id="footer">
+            <div id="footer-stats-bar" class="footer-stats-bar hidden">
+                <div class="f-stat-pill">
+                    <div class="f-stat-icon text-accent">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                    </div>
+                    <div class="f-stat-text">
+                        <span class="f-stat-val" id="f-stat-monitors">-</span>
+                        <span class="f-stat-label">Total Services</span>
+                    </div>
+                </div>
+                <div class="f-stat-pill">
+                    <div class="f-stat-icon text-success">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div class="f-stat-text">
+                        <span class="f-stat-val text-success" id="f-stat-online">-</span>
+                        <span class="f-stat-label">Systems Online</span>
+                    </div>
+                </div>
+                <div class="f-stat-pill">
+                    <div class="f-stat-icon text-warning">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div class="f-stat-text">
+                        <span class="f-stat-val text-warning" id="f-stat-incidents">0</span>
+                        <span class="f-stat-label">Active Incidents</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-content" style="display:flex; flex-direction:column; align-items:center;">
+                <img id="footer-logo" class="hidden" src="" alt="Logo" style="height: 36px; object-fit: contain; margin-bottom: 1rem;" onerror="this.classList.add('hidden')">
+                <h3 id="footer-title">System Status</h3>
+                <p id="footer-dynamic-status" style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem;"></p>
+                <p id="footer-text" style="opacity: 0.7; font-size: 0.9rem;"></p>
+                <p id="footer-info" class="footer-info hidden"></p>
+                <div id="footer-links" class="footer-links"></div>
+            </div>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
