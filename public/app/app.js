@@ -37,12 +37,12 @@ const monitorsList = document.getElementById('monitors-list');
 function applyLayout(layout) {
     if (layout === 'grid') {
         monitorsList.classList.add('grid-view');
-        iconList.classList.add('hidden');
-        iconGrid.classList.remove('hidden');
+        iconGrid.classList.add('hidden');
+        iconList.classList.remove('hidden');
     } else {
         monitorsList.classList.remove('grid-view');
-        iconList.classList.remove('hidden');
-        iconGrid.classList.add('hidden');
+        iconList.classList.add('hidden');
+        iconGrid.classList.remove('hidden');
     }
 }
 

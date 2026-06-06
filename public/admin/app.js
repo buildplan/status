@@ -1,5 +1,26 @@
 let token = localStorage.getItem('admin_token');
 
+const showToast = (message, type = 'success') => {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `<span>${message}</span><button class="toast-close">&times;</button>`;
+    
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+        toast.style.animation = 'slideOutRight 0.3s forwards';
+        setTimeout(() => toast.remove(), 300);
+    });
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.style.animation = 'slideOutRight 0.3s forwards';
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, 4000);
+};
+
 const apiFetch = async (url, options = {}) => {
     if (!options.headers) options.headers = {};
     if (token) options.headers['Authorization'] = `Bearer ${token}`;
@@ -169,7 +190,7 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
         link_urls: Array.from(document.querySelectorAll('.link-url')).map(el => el.value)
     };
     await apiFetch('/api/settings', { method: 'POST', body: JSON.stringify(payload) });
-    alert('Settings saved successfully!');
+    showToast('Settings saved successfully!');
 });
 
 document.getElementById('add-link-btn').addEventListener('click', () => {
