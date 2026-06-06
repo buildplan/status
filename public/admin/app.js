@@ -95,12 +95,18 @@ async function loadDashboard() {
         // Settings
         document.getElementById('set-title').value = data.settings.title || '';
         document.getElementById('set-logo').value = data.settings.logo_url || '';
+        document.getElementById('set-public-url').value = data.settings.public_url || '';
         document.getElementById('set-footer').value = data.settings.footer_text || '';
         document.getElementById('set-webhook-url').value = data.settings.default_notification_url || '';
         document.getElementById('set-webhook-token').value = data.settings.default_notification_token || '';
         document.getElementById('set-history-days').value = data.settings.history_retention_days || 30;
         document.getElementById('set-footer-info').value = data.settings.footer_info || '';
         document.getElementById('set-show-stats').checked = data.settings.show_footer_stats == 1;
+
+        const publicLink = document.getElementById('public-link');
+        if (publicLink && data.publicUrl) {
+            publicLink.href = data.publicUrl;
+        }
         
         const linksContainer = document.getElementById('footer-links-container');
         if (linksContainer) {
@@ -180,6 +186,7 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
     const payload = {
         title: document.getElementById('set-title').value,
         logo_url: document.getElementById('set-logo').value,
+        public_url: document.getElementById('set-public-url').value,
         footer_text: document.getElementById('set-footer').value,
         default_notification_url: document.getElementById('set-webhook-url').value,
         default_notification_token: document.getElementById('set-webhook-token').value,

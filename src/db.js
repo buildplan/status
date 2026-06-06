@@ -133,6 +133,9 @@ try {
         console.log("⚙️ Migrating DB: Adding history_retention_days column...");
         db.prepare("ALTER TABLE settings ADD COLUMN history_retention_days INTEGER DEFAULT 30").run();
     }
+    if (!settingsCols.some(c => c.name === 'public_url')) {
+        db.prepare("ALTER TABLE settings ADD COLUMN public_url TEXT DEFAULT ''").run();
+    }
 } catch (e) {
     console.error("Migration warning:", e.message);
 }

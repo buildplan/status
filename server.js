@@ -126,7 +126,7 @@ adminApp.use('/api/*', async (c, next) => {
 adminApp.get('/api/monitors', (c) => {
     const monitors = db.prepare('SELECT * FROM monitors ORDER BY position ASC, id ASC').all();
     const settings = db.prepare('SELECT * FROM settings WHERE id = 1').get();
-    return c.json({ monitors, settings, publicUrl: PUBLIC_URL || 'http://localhost:3000' });
+    return c.json({ monitors, settings, publicUrl: settings.public_url || PUBLIC_URL || 'http://localhost:3000' });
 });
 
 adminApp.post('/api/monitors/reorder', async (c) => {
@@ -174,7 +174,7 @@ adminApp.put('/api/monitors/:id', async (c) => {
 
 adminApp.post('/api/settings', async (c) => {
     const {
-        title, logo_url, footer_text,
+        title, logo_url, footer_text, public_url,
         default_notification_url, default_notification_token,
         footer_info, show_footer_stats, link_labels, link_urls
     } = await c.req.json();
@@ -189,12 +189,12 @@ adminApp.post('/api/settings', async (c) => {
     
     db.prepare(`
         UPDATE settings
-        SET title = ?, logo_url = ?, footer_text = ?,
+        SET title = ?, logo_url = ?, footer_text = ?, public_url = ?,
             default_notification_url = ?, default_notification_token = ?,
             footer_info = ?, show_footer_stats = ?, footer_links = ?
         WHERE id = 1
     `).run(
-        title, logo_url, footer_text,
+        title, logo_url, footer_text, public_url || '',
         default_notification_url, default_notification_token,
         footer_info || '', statsFlag, JSON.stringify(footerLinks)
     );
