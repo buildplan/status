@@ -5,22 +5,15 @@
   "type": "module",
   "scripts": {
     "start": "node --dns-result-order=ipv4first server.js",
-    "dev": "node --dns-result-order=ipv4first --watch server.js",
-    "build:css": "npx @tailwindcss/cli -i ./views/input.css -o ./public/style.css --minify"
+    "dev": "node --dns-result-order=ipv4first --watch server.js"
   },
   "dependencies": {
+    "@hono/node-server": "^2.0.4",
+    "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.10.0",
     "cron": "^4.4.0",
-    "csrf-sync": "^4.2.1",
-    "ejs": "^6.0.1",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.5.2",
-    "express-session": "^1.19.0",
-    "morgan": "^1.11.0",
+    "hono": "^4.12.23",
+    "jsonwebtoken": "^9.0.3",
     "sortablejs": "^1.15.7"
-  },
-  "devDependencies": {
-    "@tailwindcss/cli": "^4.3.0",
-    "tailwindcss": "^4.3.0"
   }
 }

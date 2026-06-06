@@ -50,7 +50,9 @@ db.exec(`
 // Auto-cleanup
 const cleanOldHeartbeats = () => {
     try {
-        const info = db.prepare("DELETE FROM heartbeats WHERE timestamp < datetime('now', '-30 days')").run();
+        const settings = db.prepare('SELECT history_retention_days FROM settings WHERE id = 1').get();
+        const days = settings && settings.history_retention_days ? settings.history_retention_days : 30;
+        const info = db.prepare(`DELETE FROM heartbeats WHERE timestamp < datetime('now', '-${days} days')`).run();
         if (info.changes > 0) {
             console.log(`🧹 Database cleanup: Removed ${info.changes} old heartbeats.`);
         }
@@ -58,8 +60,6 @@ const cleanOldHeartbeats = () => {
         console.error("❌ Failed to clean old heartbeats:", e.message);
     }
 };
-cleanOldHeartbeats();
-setInterval(cleanOldHeartbeats, 1000 * 60 * 60 * 24); // run every 24 hours
 
 // Settings Table
 db.exec(`
@@ -69,7 +69,23 @@ db.exec(`
         logo_url TEXT DEFAULT '',
         footer_text TEXT DEFAULT 'WiredAlter Status. All Systems Operational.',
         default_notification_url TEXT DEFAULT '',
-        default_notification_token TEXT DEFAULT ''
+        default_notification_token TEXT DEFAULT '',
+        history_retention_days INTEGER DEFAULT 30,
+        footer_links TEXT DEFAULT '[]',
+        footer_info TEXT DEFAULT '',
+        show_footer_stats INTEGER DEFAULT 0
+    )
+`);
+
+// Incidents Table
+db.exec(`
+    CREATE TABLE IF NOT EXISTS incidents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        status TEXT DEFAULT 'investigating',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
 `);
 
@@ -91,39 +107,38 @@ try {
         console.log("⚙️ Migrating DB: Adding notification_url column to monitors...");
         db.prepare("ALTER TABLE monitors ADD COLUMN notification_url TEXT").run();
     }
+    if (!monitorCols.some(c => c.name === 'consecutive_fails')) {
+        db.prepare("ALTER TABLE monitors ADD COLUMN consecutive_fails INTEGER DEFAULT 0").run();
+    }
+    if (!monitorCols.some(c => c.name === 'threshold')) {
+        db.prepare("ALTER TABLE monitors ADD COLUMN threshold INTEGER DEFAULT 3").run();
+    }
+    if (!monitorCols.some(c => c.name === 'position')) {
+        db.prepare("ALTER TABLE monitors ADD COLUMN position INTEGER DEFAULT 0").run();
+        db.prepare("UPDATE monitors SET position = id").run();
+    }
 
-    // 2. Settings columns (For Global Webhooks)
+    // 2. Settings columns
     const settingsCols = db.prepare("PRAGMA table_info(settings)").all();
     if (!settingsCols.some(c => c.name === 'default_notification_url')) {
-        console.log("⚙️ Migrating DB: Adding global notification settings...");
         db.prepare("ALTER TABLE settings ADD COLUMN default_notification_url TEXT DEFAULT ''").run();
         db.prepare("ALTER TABLE settings ADD COLUMN default_notification_token TEXT DEFAULT ''").run();
     }
-    // 3. Add flapping protection
-    if (!monitorCols.some(c => c.name === 'consecutive_fails')) {
-        console.log("⚙️ Migrating DB: Adding consecutive_fails column...");
-        db.prepare("ALTER TABLE monitors ADD COLUMN consecutive_fails INTEGER DEFAULT 0").run();
-    }
-    // 4. Add Threshold
-    if (!monitorCols.some(c => c.name === 'threshold')) {
-        console.log("⚙️ Migrating DB: Adding threshold column...");
-        db.prepare("ALTER TABLE monitors ADD COLUMN threshold INTEGER DEFAULT 3").run();
-    }
-    // 5. Add Footer Configuration
     if (!settingsCols.some(c => c.name === 'footer_links')) {
-        console.log("⚙️ Migrating DB: Adding footer configuration columns...");
         db.prepare("ALTER TABLE settings ADD COLUMN footer_links TEXT DEFAULT '[]'").run();
         db.prepare("ALTER TABLE settings ADD COLUMN footer_info TEXT DEFAULT ''").run();
         db.prepare("ALTER TABLE settings ADD COLUMN show_footer_stats INTEGER DEFAULT 0").run();
     }
-    // 6. Add Position Column for Reordering
-    if (!monitorCols.some(c => c.name === 'position')) {
-        console.log("⚙️ Migrating DB: Adding position column...");
-        db.prepare("ALTER TABLE monitors ADD COLUMN position INTEGER DEFAULT 0").run();
-        db.prepare("UPDATE monitors SET position = id").run();
+    if (!settingsCols.some(c => c.name === 'history_retention_days')) {
+        console.log("⚙️ Migrating DB: Adding history_retention_days column...");
+        db.prepare("ALTER TABLE settings ADD COLUMN history_retention_days INTEGER DEFAULT 30").run();
     }
 } catch (e) {
     console.error("Migration warning:", e.message);
 }
+
+// Run cleanup after migrations are done
+cleanOldHeartbeats();
+setInterval(cleanOldHeartbeats, 1000 * 60 * 60 * 24); // run every 24 hours
 
 export default db;
