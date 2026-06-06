@@ -261,7 +261,32 @@ function render(data) {
     }
 
     // Footer
-    document.getElementById('footer-text').textContent = `${data.settings.footer_text || ''} • © ${new Date().getFullYear()}`;
+    const downCount = data.monitors.filter(m => m.status === 'down').length;
+    const pendingCount = data.monitors.filter(m => m.status === 'pending').length;
+    
+    const dynamicStatusEl = document.getElementById('footer-dynamic-status');
+    if (downCount > 0) {
+        dynamicStatusEl.textContent = `⚠️ ${downCount} System(s) Experiencing Issues`;
+        dynamicStatusEl.className = 'text-danger';
+    } else if (pendingCount > 0) {
+        dynamicStatusEl.textContent = `🔄 Systems Checking...`;
+        dynamicStatusEl.className = 'text-warning';
+    } else if (data.monitors.length > 0) {
+        dynamicStatusEl.textContent = `✅ All Systems Operational`;
+        dynamicStatusEl.className = 'text-success';
+    } else {
+        dynamicStatusEl.textContent = `Setup your first monitor in Admin Panel`;
+        dynamicStatusEl.className = '';
+    }
+
+    const titleEl = document.getElementById('footer-title');
+    if (titleEl) titleEl.textContent = data.settings.title || 'System Status';
+
+    let fText = data.settings.footer_text || '';
+    if (fText === 'WiredAlter Status. All Systems Operational.') {
+        fText = 'WiredAlter Status';
+    }
+    document.getElementById('footer-text').textContent = `${fText} • © ${new Date().getFullYear()}`;
     
     const infoEl = document.getElementById('footer-info');
     if (data.settings.footer_info) {
