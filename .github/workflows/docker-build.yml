@@ -4,6 +4,11 @@ on:
   push:
     branches: [ "main", "dev" ]
     tags: [ 'v*.*.*' ]
+    paths-ignore:
+      - 'docker-compose.yml'
+      - 'README.md'
+      - 'renovate.json'
+      - '.gitignore'
   workflow_dispatch:
 
 env:
