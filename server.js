@@ -3,12 +3,19 @@ import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { streamSSE } from 'hono/streaming';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import db from './src/db.js';
 import { startMonitoring } from './src/monitor.js';
 import { appEvents } from './src/events.js';
 
-const JWT_SECRET = process.env.SESSION_SECRET || 'complex_password_at_least_32_characters_long';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+const JWT_SECRET = process.env.SESSION_SECRET;
+if (process.env.NODE_ENV === 'production' && !JWT_SECRET) {
+    console.error("FATAL: SESSION_SECRET environment variable is required in production!");
+    process.exit(1);
+}
+const ACTIVE_JWT_SECRET = JWT_SECRET || 'complex_password_at_least_32_characters_long';
+
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD || '$2b$10$amhjuiQEqeRGd5AAYhGBtuSYNpWA14mMtMwKMmTZPYPS4n55k.MEe'; // Default hash for 'admin'
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
 const publicApp = new Hono();
@@ -102,8 +109,16 @@ const adminApp = new Hono();
 
 adminApp.post('/api/login', async (c) => {
     const { password } = await c.req.json();
-    if (password === ADMIN_PASSWORD) {
-        const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
+    
+    let isValid = false;
+    try {
+        isValid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+    } catch (err) {
+        console.error("Bcrypt compare error:", err);
+    }
+    
+    if (isValid) {
+        const token = jwt.sign({ admin: true }, ACTIVE_JWT_SECRET, { expiresIn: '24h' });
         return c.json({ token });
     }
     return c.json({ error: 'Invalid password' }, 401);
@@ -116,7 +131,7 @@ adminApp.use('/api/*', async (c, next) => {
     }
     const token = authHeader.split(' ')[1];
     try {
-        jwt.verify(token, JWT_SECRET);
+        jwt.verify(token, ACTIVE_JWT_SECRET);
         await next();
     } catch {
         return c.json({ error: 'Unauthorized' }, 401);
