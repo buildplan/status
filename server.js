@@ -3,12 +3,19 @@ import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { streamSSE } from 'hono/streaming';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import db from './src/db.js';
 import { startMonitoring } from './src/monitor.js';
 import { appEvents } from './src/events.js';
 
-const JWT_SECRET = process.env.SESSION_SECRET || 'complex_password_at_least_32_characters_long';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+const JWT_SECRET = process.env.SESSION_SECRET;
+if (process.env.NODE_ENV === 'production' && !JWT_SECRET) {
+    console.error("FATAL: SESSION_SECRET environment variable is required in production!");
+    process.exit(1);
+}
+const ACTIVE_JWT_SECRET = JWT_SECRET || 'complex_password_at_least_32_characters_long';
+
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD || '$2b$10$amhjuiQEqeRGd5AAYhGBtuSYNpWA14mMtMwKMmTZPYPS4n55k.MEe'; // Default hash for 'admin'
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
 const publicApp = new Hono();
@@ -47,17 +54,17 @@ publicApp.get('/api/status', (c) => {
         const totalCount = fullHistory.length || 1;
         const uptime = parseFloat(((upCount / totalCount) * 100).toFixed(1));
         totalUptimeScore += uptime;
-        
+
         const history = fullHistory.slice(-50);
         if (m.status === 'up') onlineCount++;
         if (m.status === 'down') globalStatus = 'degraded';
         totalLatency += m.response_time || 0;
-        
+
         const lastChecked = m.last_checked ? new Date(m.last_checked + 'Z').getTime() : 0;
         const nextCheck = lastChecked + (m.interval * 1000);
         const diff = nextCheck - now;
         if (diff < minTimeUntilCheck) minTimeUntilCheck = diff;
-        
+
         return { ...m, history, uptime };
     });
 
@@ -86,12 +93,12 @@ publicApp.get('/api/stream', (c) => {
             try { await stream.writeSSE({ data: 'refresh' }); } catch(e){}
         };
         appEvents.on('status_update', onUpdate);
-        
+
         while (!c.req.raw.signal.aborted) {
             await stream.sleep(15000);
             try { await stream.writeSSE({ event: 'ping', data: 'ping' }); } catch(e){}
         }
-        
+
         appEvents.off('status_update', onUpdate);
     });
 });
@@ -102,8 +109,16 @@ const adminApp = new Hono();
 
 adminApp.post('/api/login', async (c) => {
     const { password } = await c.req.json();
-    if (password === ADMIN_PASSWORD) {
-        const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
+
+    let isValid = false;
+    try {
+        isValid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+    } catch (err) {
+        console.error("Bcrypt compare error:", err);
+    }
+
+    if (isValid) {
+        const token = jwt.sign({ admin: true }, ACTIVE_JWT_SECRET, { expiresIn: '24h' });
         return c.json({ token });
     }
     return c.json({ error: 'Invalid password' }, 401);
@@ -116,7 +131,7 @@ adminApp.use('/api/*', async (c, next) => {
     }
     const token = authHeader.split(' ')[1];
     try {
-        jwt.verify(token, JWT_SECRET);
+        jwt.verify(token, ACTIVE_JWT_SECRET);
         await next();
     } catch {
         return c.json({ error: 'Unauthorized' }, 401);
@@ -178,7 +193,7 @@ adminApp.post('/api/settings', async (c) => {
         default_notification_url, default_notification_token,
         footer_info, show_footer_stats, link_labels, link_urls
     } = await c.req.json();
-    
+
     let footerLinks = [];
     if (link_labels && link_urls) {
         const labels = Array.isArray(link_labels) ? link_labels : [link_labels];
@@ -186,7 +201,7 @@ adminApp.post('/api/settings', async (c) => {
         footerLinks = labels.map((label, i) => ({ label, url: urls[i] })).filter(l => l.label && l.url);
     }
     const statsFlag = show_footer_stats ? 1 : 0;
-    
+
     db.prepare(`
         UPDATE settings
         SET title = ?, logo_url = ?, footer_text = ?, public_url = ?,
@@ -243,7 +258,7 @@ adminApp.get('/api/analysis', (c) => {
     const upCount = db.prepare("SELECT count(*) as count FROM heartbeats WHERE status='up'").get().count;
     const totalCount = downCount + upCount || 1;
     const globalUptime = ((upCount / totalCount) * 100).toFixed(2);
-    
+
     // Average Latency
     const avgLatencyRow = db.prepare("SELECT avg(latency) as avg_lat FROM heartbeats WHERE status='up'").get();
     const avgLatencyAll = avgLatencyRow.avg_lat ? Math.round(avgLatencyRow.avg_lat) : 0;

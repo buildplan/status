@@ -26,12 +26,17 @@ This project was built as a lighter alternative for specific workflows. While a 
 
 ### Quick Start
 
-1. Create a `.env` file:
+1. Create a `.env` file. You must set `SESSION_SECRET` in production. For `ADMIN_PASSWORD`, you must generate a bcrypt hash (see below):
 
 ```bash
-ADMIN_PASSWORD=change_this_password
+# Example hash for 'admin'
+ADMIN_PASSWORD=$2b$10$amhjuiQEqeRGd5AAYhGBtuSYNpWA14mMtMwKMmTZPYPS4n55k.MEe
 SESSION_SECRET=long_complex_random_string_at_least_32_chars
 ```
+
+> **Note:** To generate a bcrypt password hash without installing anything locally, you can use Docker to run a command inside the app's container:  
+> `docker run --rm ghcr.io/buildplan/status:latest node -e "console.log(require('bcrypt').hashSync('your_password', 10))"`  
+> Or use an online tool like [bcrypt-generator.com](https://bcrypt-generator.com/).
 
 1. Create a `docker-compose.yml` file (or clone the repo):
 
@@ -41,7 +46,7 @@ services:
     image: ghcr.io/buildplan/status:latest
     container_name: status-service
     restart: unless-stopped
-    user: "1001:1001"
+    user: "1000:1000"
     ports:
       - "3909:3000"           # Public Interface
       - "127.0.0.1:4909:3001" # Admin Interface (Localhost only)
@@ -107,8 +112,8 @@ docker network create cloudflare-net
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `ADMIN_PASSWORD` | Password for the admin dashboard. | `admin` |
-| `SESSION_SECRET` | Secret key for encrypting cookies. Must be 32+ chars. | (Hardcoded fallback) |
+| `ADMIN_PASSWORD` | Bcrypt hash of the password for the admin dashboard. | Hash for `admin` |
+| `SESSION_SECRET` | Secret key for encrypting JWT tokens. Required in production. | None (crashes if missing) |
 | `TZ` | Timezone for log timestamps. | `UTC` |
 | `NODE_ENV` | Set to `production` for deployment. | `development` |
 

@@ -11,9 +11,7 @@
     "@hono/node-server": "^2.0.4",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.10.0",
-    "cron": "^4.4.0",
     "hono": "^4.12.25",
-    "jsonwebtoken": "^9.0.3",
-    "sortablejs": "^1.15.7"
+    "jsonwebtoken": "^9.0.3"
   }
 }

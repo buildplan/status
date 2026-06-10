@@ -3,7 +3,7 @@ services:
     build: .
     container_name: status-service
     restart: unless-stopped
-    user: "1001:1001" # required to set correct permissions
+    user: "1000:1000" # required to set correct permissions
     ports:
       - "3909:3000"           # public - expose status page
       - "127.0.0.1:4909:3001" # admin - admin only, keep it local

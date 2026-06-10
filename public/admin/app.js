@@ -5,14 +5,14 @@ const showToast = (message, type = 'success') => {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `<span>${message}</span><button class="toast-close">&times;</button>`;
-    
+
     toast.querySelector('.toast-close').addEventListener('click', () => {
         toast.style.animation = 'slideOutRight 0.3s forwards';
         setTimeout(() => toast.remove(), 300);
     });
-    
+
     container.appendChild(toast);
-    
+
     setTimeout(() => {
         if (toast.parentElement) {
             toast.style.animation = 'slideOutRight 0.3s forwards';
@@ -25,7 +25,7 @@ const apiFetch = async (url, options = {}) => {
     if (!options.headers) options.headers = {};
     if (token) options.headers['Authorization'] = `Bearer ${token}`;
     options.headers['Content-Type'] = 'application/json';
-    
+
     const res = await fetch(url, options);
     if (res.status === 401) {
         logout();
@@ -87,11 +87,11 @@ async function loadDashboard() {
             apiFetch('/api/incidents'),
             apiFetch('/api/analysis')
         ]);
-        
+
         const data = await monRes.json();
         const incData = await incRes.json();
         const anaData = await anaRes.json();
-        
+
         // Settings
         document.getElementById('set-title').value = data.settings.title || '';
         document.getElementById('set-logo').value = data.settings.logo_url || '';
@@ -107,13 +107,13 @@ async function loadDashboard() {
         if (publicLink && data.publicUrl) {
             publicLink.href = data.publicUrl;
         }
-        
+
         const linksContainer = document.getElementById('footer-links-container');
         if (linksContainer) {
             linksContainer.innerHTML = '';
             let links = [];
             try { links = JSON.parse(data.settings.footer_links || '[]'); } catch(e){}
-            
+
             window.renderLinkInput = (label = '', url = '') => {
                 const div = document.createElement('div');
                 div.className = 'form-grid';
@@ -127,10 +127,10 @@ async function loadDashboard() {
                 div.querySelector('.remove-link').addEventListener('click', () => div.remove());
                 linksContainer.appendChild(div);
             };
-            
+
             links.forEach(l => window.renderLinkInput(l.label, l.url));
         }
-        
+
         // Monitors
         const tbody = document.getElementById('monitors-tbody');
         tbody.innerHTML = '';
@@ -254,7 +254,7 @@ document.getElementById('monitor-form').addEventListener('submit', async (e) => 
         notification_url: document.getElementById('mon-notif-url').value,
         notification_token: document.getElementById('mon-notif-token').value
     };
-    
+
     if (id) {
         await apiFetch(`/api/monitors/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
     } else {
@@ -299,7 +299,7 @@ document.getElementById('incident-form').addEventListener('submit', async (e) =>
         status: document.getElementById('inc-status').value,
         description: document.getElementById('inc-desc').value
     };
-    
+
     if (id) {
         await apiFetch(`/api/incidents/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
     } else {
