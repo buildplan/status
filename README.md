@@ -34,8 +34,8 @@ ADMIN_PASSWORD=$2b$10$amhjuiQEqeRGd5AAYhGBtuSYNpWA14mMtMwKMmTZPYPS4n55k.MEe
 SESSION_SECRET=long_complex_random_string_at_least_32_chars
 ```
 
-> **Note:** To generate a bcrypt password hash without installing anything locally, you can use Docker to run a command inside the app's container:
-> `docker run --rm ghcr.io/buildplan/status:latest node -e "console.log(require('bcrypt').hashSync('your_password', 10))"`
+> **Note:** To generate a bcrypt password hash without installing anything locally, you can use Docker to run a command inside the app's container:  
+> `docker run --rm ghcr.io/buildplan/status:latest node -e "console.log(require('bcrypt').hashSync('your_password', 10))"`  
 > Or use an online tool like [bcrypt-generator.com](https://bcrypt-generator.com/).
 
 1. Create a `docker-compose.yml` file (or clone the repo):
