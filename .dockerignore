@@ -34,3 +34,5 @@ README.md
 data/*
 !data/.keep
 screenshots/
+/app/style.css.old
+*.old

@@ -156,7 +156,7 @@ async function checkService(monitor) {
     db.prepare(`
         INSERT INTO heartbeats (monitor_id, status, latency) VALUES (?, ?, ?)
     `).run(monitor.id, isUp ? 'up' : 'down', latency);
-    
+
     appEvents.emit('status_update');
 }
 

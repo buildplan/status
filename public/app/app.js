@@ -20,7 +20,7 @@ applyTheme(currentTheme);
 toggleThemeBtn.addEventListener('click', () => {
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', currentTheme);
-    
+
     if (!document.startViewTransition) {
         applyTheme(currentTheme);
     } else {
@@ -91,7 +91,7 @@ function render(data) {
         if (ft) ft.textContent = data.settings.title;
         document.title = data.settings.title;
     }
-    
+
     const logoImg = document.getElementById('logo-img');
     const footerLogo = document.getElementById('footer-logo');
     if (data.settings.logo_url) {
@@ -107,14 +107,14 @@ function render(data) {
         if (logoImg) logoImg.classList.add('hidden');
         if (footerLogo) footerLogo.classList.add('hidden');
     }
-    
+
     // Global Status
     const pill = document.getElementById('global-status-pill');
     const statusText = document.getElementById('status-text');
     const statusSubtext = document.getElementById('status-subtext');
-    
+
     pill.className = `global-status-pill ${data.stats.status}`;
-    
+
     if (data.stats.status === 'operational') {
         statusText.textContent = "All Systems Operational";
         statusSubtext.textContent = `${data.stats.uptime}% UPTIME TODAY`;
@@ -125,12 +125,12 @@ function render(data) {
         statusText.textContent = "Major Outage";
         statusSubtext.textContent = "CRITICAL FAILURES";
     }
-    
+
     // Stats
     document.getElementById('stat-active').textContent = data.stats.active;
     document.getElementById('stat-online').textContent = data.stats.online;
     document.getElementById('stat-latency').textContent = `${data.stats.avgLatency}ms`;
-    
+
     // Footer Stats Bar
     if (data.settings.show_footer_stats) {
         document.getElementById('footer-stats-bar').classList.remove('hidden');
@@ -140,10 +140,10 @@ function render(data) {
     } else {
         document.getElementById('footer-stats-bar').classList.add('hidden');
     }
-    
+
     // Monitors
     const existingMonitorIds = new Set(Array.from(monitorsList.children).map(c => c.dataset.id));
-    
+
     data.monitors.forEach(m => {
         let card = document.getElementById(`monitor-${m.id}`);
         if (!card) {
@@ -154,14 +154,14 @@ function render(data) {
             monitorsList.appendChild(card);
         }
         existingMonitorIds.delete(String(m.id));
-        
+
         const stateHash = JSON.stringify(m);
         if (card.dataset.state === stateHash) return; // Skip if no changes
         card.dataset.state = stateHash;
-        
+
         let isUp = m.status === 'up';
         let isDown = m.status === 'down';
-        
+
         let iconHtml = '';
         if (isUp) {
             iconHtml = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
@@ -170,15 +170,15 @@ function render(data) {
         } else {
             iconHtml = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
         }
-        
+
         let badgeColor = m.uptime === 100 ? 'text-text-secondary' : 'text-warning';
         let badgeText = m.uptime === 100 ? '100%' : `${m.uptime}%`;
-        
+
         // Graph SVG
         let graphHtml = '';
         if (m.history && m.history.length > 0) {
             const h = m.history;
-            const maxLat = Math.max(...h.map(x => x.latency), 100); 
+            const maxLat = Math.max(...h.map(x => x.latency), 100);
             let points = "";
             h.forEach((pt, i) => {
                 const x = (i / (h.length - 1 || 1)) * 100;
@@ -199,7 +199,7 @@ function render(data) {
                 </svg>
             `;
         }
-        
+
         // Bars
         let barsHtml = '<div class="m-bars">';
         if (m.history) {
@@ -243,26 +243,26 @@ function render(data) {
             ${barsHtml}
         `;
     });
-    
+
     // Remove deleted monitors
     existingMonitorIds.forEach(id => {
         const el = document.getElementById(`monitor-${id}`);
         if (el) el.remove();
     });
-    
+
     // Incidents
     const incidentsContainer = document.getElementById('incidents-container');
     const incidentsList = document.getElementById('incidents-list');
     incidentsList.innerHTML = '';
-    
+
     if (data.incidents && data.incidents.length > 0) {
         incidentsContainer.classList.remove('hidden');
         data.incidents.forEach(inc => {
             const card = document.createElement('div');
             card.className = `incident-card status-${inc.status}`;
-            
+
             const date = new Date(inc.created_at).toLocaleString();
-            
+
             card.innerHTML = `
                 <div class="inc-header">
                     <h3 class="inc-title">${inc.title}</h3>
@@ -280,7 +280,7 @@ function render(data) {
     // Footer
     const downCount = data.monitors.filter(m => m.status === 'down').length;
     const pendingCount = data.monitors.filter(m => m.status === 'pending').length;
-    
+
     const dynamicStatusEl = document.getElementById('footer-dynamic-status');
     if (downCount > 0) {
         dynamicStatusEl.textContent = `⚠️ ${downCount} System(s) Experiencing Issues`;
@@ -304,7 +304,7 @@ function render(data) {
         fText = 'WiredAlter Status';
     }
     document.getElementById('footer-text').textContent = `${fText} • © ${new Date().getFullYear()}`;
-    
+
     const infoEl = document.getElementById('footer-info');
     if (data.settings.footer_info) {
         infoEl.textContent = data.settings.footer_info;
@@ -312,7 +312,7 @@ function render(data) {
     } else {
         infoEl.classList.add('hidden');
     }
-    
+
     const linksDiv = document.getElementById('footer-links');
     linksDiv.innerHTML = '';
     if (data.settings.footer_links) {

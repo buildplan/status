@@ -54,17 +54,17 @@ publicApp.get('/api/status', (c) => {
         const totalCount = fullHistory.length || 1;
         const uptime = parseFloat(((upCount / totalCount) * 100).toFixed(1));
         totalUptimeScore += uptime;
-        
+
         const history = fullHistory.slice(-50);
         if (m.status === 'up') onlineCount++;
         if (m.status === 'down') globalStatus = 'degraded';
         totalLatency += m.response_time || 0;
-        
+
         const lastChecked = m.last_checked ? new Date(m.last_checked + 'Z').getTime() : 0;
         const nextCheck = lastChecked + (m.interval * 1000);
         const diff = nextCheck - now;
         if (diff < minTimeUntilCheck) minTimeUntilCheck = diff;
-        
+
         return { ...m, history, uptime };
     });
 
@@ -93,12 +93,12 @@ publicApp.get('/api/stream', (c) => {
             try { await stream.writeSSE({ data: 'refresh' }); } catch(e){}
         };
         appEvents.on('status_update', onUpdate);
-        
+
         while (!c.req.raw.signal.aborted) {
             await stream.sleep(15000);
             try { await stream.writeSSE({ event: 'ping', data: 'ping' }); } catch(e){}
         }
-        
+
         appEvents.off('status_update', onUpdate);
     });
 });
@@ -109,14 +109,14 @@ const adminApp = new Hono();
 
 adminApp.post('/api/login', async (c) => {
     const { password } = await c.req.json();
-    
+
     let isValid = false;
     try {
         isValid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
     } catch (err) {
         console.error("Bcrypt compare error:", err);
     }
-    
+
     if (isValid) {
         const token = jwt.sign({ admin: true }, ACTIVE_JWT_SECRET, { expiresIn: '24h' });
         return c.json({ token });
@@ -193,7 +193,7 @@ adminApp.post('/api/settings', async (c) => {
         default_notification_url, default_notification_token,
         footer_info, show_footer_stats, link_labels, link_urls
     } = await c.req.json();
-    
+
     let footerLinks = [];
     if (link_labels && link_urls) {
         const labels = Array.isArray(link_labels) ? link_labels : [link_labels];
@@ -201,7 +201,7 @@ adminApp.post('/api/settings', async (c) => {
         footerLinks = labels.map((label, i) => ({ label, url: urls[i] })).filter(l => l.label && l.url);
     }
     const statsFlag = show_footer_stats ? 1 : 0;
-    
+
     db.prepare(`
         UPDATE settings
         SET title = ?, logo_url = ?, footer_text = ?, public_url = ?,
@@ -258,7 +258,7 @@ adminApp.get('/api/analysis', (c) => {
     const upCount = db.prepare("SELECT count(*) as count FROM heartbeats WHERE status='up'").get().count;
     const totalCount = downCount + upCount || 1;
     const globalUptime = ((upCount / totalCount) * 100).toFixed(2);
-    
+
     // Average Latency
     const avgLatencyRow = db.prepare("SELECT avg(latency) as avg_lat FROM heartbeats WHERE status='up'").get();
     const avgLatencyAll = avgLatencyRow.avg_lat ? Math.round(avgLatencyRow.avg_lat) : 0;
