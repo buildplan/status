@@ -7,7 +7,6 @@ RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 # Install dependencies
-# Install dependencies
 COPY package*.json ./
 RUN npm ci
 COPY . .
@@ -36,8 +35,8 @@ USER node
 # Copy only necessary artifacts from builder
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/public ./public
-COPY --chown=node:node src ./src
-COPY --chown=node:node package.json server.js ./
+COPY --from=builder --chown=node:node /app/src ./src
+COPY --from=builder --chown=node:node /app/package.json /app/server.js ./
 
 # Expose ports (3000 = Public, 3001 = Admin)
 EXPOSE 3000 3001
