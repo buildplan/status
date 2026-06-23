@@ -22,6 +22,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    registries:
+      - dhi-registry
 
   - package-ecosystem: "github-actions"
     directory: "/"
