@@ -32,7 +32,7 @@ jobs:
 
       # Setup Buildx
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4.1.0
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       # Login to DHI Registry to pull hardened base images
       - name: Log in to DHI Registry
