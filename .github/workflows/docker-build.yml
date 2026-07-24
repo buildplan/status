@@ -75,7 +75,7 @@ jobs:
 
       # Cleanup (Keep only last 5 versions to save storage)
       - name: Clean up old GHCR images
-        uses: quartx-analytics/ghcr-cleaner@v1.0.2
+        uses: buildplan/ghcr-cleaner@v1
         with:
           owner-type: user
           token: ${{ secrets.PAT_TOKEN }}
