@@ -1,5 +1,5 @@
 # STAGE 1: Builder
-FROM dhi.io/node:26.5.0-alpine3.24-dev@sha256:5acb9958b3c9fcbf3247ee02f8af736d250fd883589c4e92942b5e73b87867eb AS builder
+FROM dhi.io/node:26.5.0-alpine3.24-dev@sha256:2bd8f9c157cbe94be82fe27f2f5bc1a2ff94319ad0217a2915334bddc3688728 AS builder
 
 # Install build and runtime tools
 RUN apk add --no-cache python3 make g++ dumb-init tzdata
