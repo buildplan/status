@@ -1,5 +1,5 @@
 # STAGE 1: Builder
-FROM dhi.io/node:26.7.0-alpine3.24-dev@sha256:b6045b1e4dce4d1757211da1926ad47e1fc272fe15c454923a6d9d9746274575 AS builder
+FROM dhi.io/node:26.8.1-alpine3.24-dev@sha256:568938d6b7b45704a4bd6b86604bbd3363623d7505875449ba431bb7cd6f0796 AS builder
 
 # Install build and runtime tools
 RUN apk add --no-cache python3 make g++ dumb-init tzdata
@@ -14,7 +14,7 @@ RUN npm prune --omit=dev && npm cache clean --force
 RUN mkdir -p /app/data && chown -R 1000:1000 /app/data
 
 # STAGE 2: Runner
-FROM dhi.io/node:26.7.0-alpine3.24@sha256:019a466db59568d3f50abafaa9020ea6cef74ccd4173c753e8634189c461cfd0
+FROM dhi.io/node:26.8.1-alpine3.24@sha256:33c8aa3a66d8b227e75e8bec0a8c8a022cfcd96e0732d6e4abdde13e574ba1e7
 
 ENV NODE_ENV=production
 WORKDIR /app
