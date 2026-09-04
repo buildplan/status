@@ -2,7 +2,7 @@
 FROM dhi.io/node:26.8.1-alpine3.24-dev@sha256:568938d6b7b45704a4bd6b86604bbd3363623d7505875449ba431bb7cd6f0796 AS builder
 
 # Install build and runtime tools
-RUN apk add --no-cache python3 dumb-init tzdata
+RUN apk add --no-cache python3 make dumb-init tzdata
 
 WORKDIR /app
 
