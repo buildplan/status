@@ -14,7 +14,7 @@ RUN npm prune --omit=dev && npm cache clean --force
 RUN mkdir -p /app/data && chown -R 1000:1000 /app/data
 
 # STAGE 2: Runner
-FROM dhi.io/node:26.11.1-alpine3.24@sha256:5576a6feb66b66e47d285bd923cc6361b6e0db203dcfc83a5d9ab0fe84eec709
+FROM dhi.io/node:26.11.1-alpine3.24@sha256:7ebbb0911aab10f5e8220c7a2400a973c1aea6dc28eafd91e40cc69c716e0312
 
 ENV NODE_ENV=production
 WORKDIR /app
