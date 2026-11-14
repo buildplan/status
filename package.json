@@ -10,7 +10,7 @@
   "dependencies": {
     "@hono/node-server": "^2.1.7",
     "bcrypt": "^6.0.0",
-    "better-sqlite3": "^13.0.3",
+    "better-sqlite3": "^13.1.1",
     "hono": "^4.13.18",
     "jsonwebtoken": "^9.0.3"
   }
