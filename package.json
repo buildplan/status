@@ -8,10 +8,10 @@
     "dev": "node --dns-result-order=ipv4first --watch server.js"
   },
   "dependencies": {
-    "@hono/node-server": "^2.1.9",
+    "@hono/node-server": "^2.1.11",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^13.2.0",
-    "hono": "^4.13.19",
+    "hono": "^4.13.22",
     "jsonwebtoken": "^9.0.3"
   }
 }
